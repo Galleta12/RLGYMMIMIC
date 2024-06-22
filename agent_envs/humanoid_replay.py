@@ -26,3 +26,41 @@ DEFAULT_CAMERA_CONFIG = {
     "elevation": -20.0,
 }
 
+class HumanoidReplay(MujocoEnv):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "depth_array",
+        ],
+        "render_fps": 30,
+    }
+
+    def __init__(self, model, 
+                 frame_skip: int = 1,   
+                 default_camera_config: Dict[str, Union[float, int]] = DEFAULT_CAMERA_CONFIG,**kwargs):
+        
+
+        print("this is the model_path",model)
+   
+
+        MujocoEnv.__init__(
+            self, os.path.abspath(f"assets/mujoco_models/{model}"),  frame_skip,  
+            default_camera_config=DEFAULT_CAMERA_CONFIG, observation_space=None,**kwargs
+        )
+        self.metadata['render_fps'] = int(np.round(self.metadata['render_fps'] / frame_skip))
+    
+        #self.metadata['render_fps'] = int(np.round(1.0 / self.dt))
+
+    
+    def forward(self):
+        mj.mj_forward(self.model, self.data)
+
+    
+    def reset_model(self):
+        c = 0
+        self.set_state(
+            self.np_random.uniform(low=-c, high=c, size=self.model.nq),
+            self.np_random.uniform(low=-c, high=c, size=self.model.nv)
+        )
+        return None
