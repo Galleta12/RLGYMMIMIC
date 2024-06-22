@@ -18,6 +18,8 @@ from rfc_models.mlp import MLP
 from agent_envs.humanoid_env import HumanoidTemplate
 from rfc_utils.config import Config
 from rfc_utils.logger import create_logger
+from common.viewer import MyViewer
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cfg', default=None)
@@ -91,9 +93,15 @@ def data_generator():
         poses['pred'] = np.vstack(poses['pred'])
         num_fr = poses['pred'].shape[0]
         yield poses
-    
+
+
+def visualize():
+    pass
+
+
+
 data_gen = data_generator()
 data = next(data_gen)
 
-print(data)
+
 
