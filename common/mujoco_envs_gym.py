@@ -162,8 +162,8 @@ class BaseMujocoEnv(gym.Env[np.float64, np.float32]):
         ob = self.reset_model()
         info = self._get_reset_info()
 
-        # if self.render_mode == "human":
-        #     self.render()
+        if self.render_mode == "human":
+            self.render()
         return ob, info
 
     def set_state(self, qpos, qvel) -> None:

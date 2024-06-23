@@ -123,7 +123,8 @@ def visualize_dynamics():
     if running_state is not None:
         print("runni state no none")
         state = running_state(state, update=False)
-    for t in range(1000):
+    for t in range(4000):
+        #print(t)
         state_var = tensor(state, dtype=dtype).unsqueeze(0)
         action = policy_net.select_action(state_var, mean_action=True)[0].cpu().numpy()
         next_state, reward, done, _ = env.step(action)
@@ -131,6 +132,7 @@ def visualize_dynamics():
         if running_state is not None:
             next_state = running_state(next_state, update=False)
         if done:
+            #print('done')
             env.reset()
         state = next_state
 
