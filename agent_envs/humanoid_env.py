@@ -80,6 +80,7 @@ class HumanoidTemplate(MujocoEnv):
             #print("is residual force:,", cfg.residual_force)
             if cfg.residual_force_mode == 'implicit':
                 self.vf_dim = 6
+    
         self.action_dim = self.ndof + self.vf_dim
         self.action_space = gym.spaces.Box(low=-np.ones(self.action_dim), high=np.ones(self.action_dim), dtype=np.float32)
         self.obs_dim = self.get_obs().size
@@ -198,7 +199,7 @@ class HumanoidTemplate(MujocoEnv):
                 vf = ctrl[-self.vf_dim:].copy()
                 if cfg.residual_force_mode == 'implicit':
                     self.rfc_implicit(vf)
-                
+            
 
             mj.mj_step(self.model, self.data)
 
