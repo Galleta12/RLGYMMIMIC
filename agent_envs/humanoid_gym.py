@@ -217,6 +217,7 @@ class HumanoidGymTemplate(MujocoEnv, EzPickle):
         self.prev_bquat = self.bquat.copy()
         # do simulation
         self.do_simulation(a, self.frame_skip)
+        
         self.cur_t += 1
         self.bquat = self.get_body_quat()
         self.update_expert()
@@ -229,7 +230,9 @@ class HumanoidGymTemplate(MujocoEnv, EzPickle):
         done = fail or end
         obs = self.get_obs()
         
-        
+        if self.render_mode == 'human':
+            self.render()
+        #print("reward is this", reward)
         
         return obs, reward, done,False,{'fail': fail, 'end': end}
     

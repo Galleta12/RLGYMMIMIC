@@ -90,32 +90,51 @@ env = HumanoidGymTemplate(cfg)
 
 class ActorCriticPolicy(MultiInputActorCriticPolicy):
     def __init__(self, *args, **kwargs):
-        self.log_std_dist = Uniform(torch.tensor([-0.01]), torch.tensor([0.01]))
+        self.log_std_dist = Uniform(torch.tensor([-2.3]), torch.tensor([2.3]))
+         # Set log_std as a fixed value (not a parameter, not trainable)
+        #self.log_std = torch.tensor([cfg.log_std] * env.action_space.shape[0], dtype=torch.float32)
         super(ActorCriticPolicy, self).__init__(*args, **kwargs,
                                                 net_arch={'vf': [512, 256], 'pi': [512, 256]},
                                                 activation_fn=nn.ReLU,
                                                 log_std_init=self.log_std_dist.sample().float())
 
         # Manually update the optimizer to enable per-layer hyperparameters to be set.
-        self.optimizer = torch.optim.SGD([{'params': self.pi_features_extractor.parameters(),
+        self.optimizer = torch.optim.Adam([{'params': self.pi_features_extractor.parameters(),
                                            'lr':cfg.policy_lr,
                                            'weight_decay': cfg.policy_weightdecay},
                                           {'params': self.vf_features_extractor.parameters(),
                                            'lr': cfg.value_lr,
-                                           'weight_decay': cfg.value_weightdecay}], momentum=0.9)
+                                           'weight_decay': cfg.value_weightdecay}])
+
+    # def _distribution(self, latent_pi):
+    #     # Use the fixed log_std to create the action distribution
+    #     mean_actions = self.action_net(latent_pi)
+    #     std_actions = torch.exp(self.log_std).expand_as(mean_actions)
+    #     return torch.distributions.Normal(mean_actions, std_actions)
+
+    # def forward(self, obs, deterministic=False):
+    #     latent_pi = self.extract_features(obs)
+    #     distribution = self._distribution(latent_pi)
+    #     actions = distribution.mean if deterministic else distribution.sample()
+    #     log_prob = distribution.log_prob(actions).sum(axis=-1)
+    #     return actions, log_prob
 
 
-
-
+def make_env(cfg):
+    def _init():
+        env = HumanoidGymTemplate(cfg,render_mode="human")
+        env.seed(cfg.seed)
+        return env
+    return _init
 
 
 def train():
-    # env = make_vec_env(make_env(model_path, reference_data, args, frame_skip, render_mode), n_envs=1)
+    mul_env = make_vec_env(make_env(cfg), n_envs=2)
     # env = VecNormalize(env,norm_obs=True)
     
     model = PPO(
         policy=ActorCriticPolicy,
-        env=env,
+        env=mul_env,
         #n_steps=4096,             # m = 4096 samples per policy update
         n_steps=4096,             # m = 4096 samples per policy update
         batch_size=256 ,           # n = 256 for minibatches
