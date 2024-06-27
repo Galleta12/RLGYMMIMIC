@@ -13,12 +13,13 @@ from scipy.linalg import cho_solve, cho_factor
 current_dir = os.path.dirname(os.path.realpath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
-from rfc_utils.rfc_mujoco import get_body_qposaddr
-from rfc_utils.tools import get_expert
-from rfc_utils.rfc_math import *
-from rfc_utils.transformation import quaternion_from_euler
+# from rfc_utils.rfc_mujoco import get_body_qposaddr
+# from rfc_utils.tools import get_expert
+from tools.tools import get_expert, get_body_qposaddr
+from some_math.math_utils import *
+from some_math.transformation import quaternion_from_euler
 from common.mujoco_envs import MujocoEnv
-
+from agent_envs.pd_controllers import stable_pd_controller
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
     "distance": 4.0,
@@ -61,6 +62,7 @@ class HumanoidTemplate(MujocoEnv):
         self.expert = None
         self.load_expert()
         self.set_spaces()
+        self.ee_name = ['lfoot', 'rfoot', 'lwrist', 'rwrist', 'head']
     
     def set_body_names(self):
         body_names = [mj.mj_id2name(self.model, mj.mjtObj.mjOBJ_BODY, i) for i in range(self.model.nbody)]
@@ -98,7 +100,12 @@ class HumanoidTemplate(MujocoEnv):
         qpos = data.qpos.copy()
         qvel = data.qvel.copy()
         # transform velocity
-        qvel[:3] = transform_vec(qvel[:3], qpos[3:7], self.cfg.obs_coord).ravel()
+        if self.cfg.obs_coord == 'root':
+            qvel[:3] = transform_vec(qvel[:3], qpos[3:7]).ravel()
+        elif self.cfg.obs_coord =='heading':
+            hq = get_heading_q(qpos[3:7])
+            qvel[:3] = transform_vec(qvel[:3], hq).ravel()
+            
         obs = []
         # pos
         obs.append(qpos[2:])
@@ -114,16 +121,22 @@ class HumanoidTemplate(MujocoEnv):
     
     def get_ee_pos(self, transform):
         data = self.data
-        ee_name = ['lfoot', 'rfoot', 'lwrist', 'rwrist', 'head']
+        #ee_name = ['lfoot', 'rfoot', 'lwrist', 'rwrist', 'head']
         ee_pos = []
         root_pos = data.qpos[:3]
         root_q = data.qpos[3:7].copy()
-        for name in ee_name:
+        for name in self.ee_name:
             bone_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_BODY, name)
             bone_vec = self.data.xpos[bone_id]
             if transform is not None:
+                
                 bone_vec = bone_vec - root_pos
-                bone_vec = transform_vec(bone_vec, root_q, transform)
+                if self.cfg.obs_coord == 'root':
+                    bone_vec = transform_vec(bone_vec, root_q)
+                elif self.cfg.obs_coord == 'heading':
+                    hq = get_heading_q(root_q)
+                    bone_vec = transform_vec(bone_vec, hq)
+                    
             ee_pos.append(bone_vec)
         return np.concatenate(ee_pos)
 
@@ -165,16 +178,18 @@ class HumanoidTemplate(MujocoEnv):
         base_pos = cfg.a_ref
         target_pos = base_pos + ctrl_joint
 
-        k_p = np.zeros(qvel.shape[0])
-        k_d = np.zeros(qvel.shape[0])
-        k_p[6:] = cfg.jkp
-        k_d[6:] = cfg.jkd
-        qpos_err = np.concatenate((np.zeros(6), qpos[7:] + qvel[6:]*dt - target_pos))
-        qvel_err = qvel
-        q_accel = self.compute_desired_accel(qpos_err, qvel_err, k_p, k_d)
-        qvel_err += q_accel * dt
-        torque = -cfg.jkp * qpos_err[6:] - cfg.jkd * qvel_err[6:]
-        return torque
+        tau = stable_pd_controller(self.data,self.model,target_pos,qpos,qvel,cfg,dt)
+        return tau
+        # k_p = np.zeros(qvel.shape[0])
+        # k_d = np.zeros(qvel.shape[0])
+        # k_p[6:] = cfg.jkp
+        # k_d[6:] = cfg.jkd
+        # qpos_err = np.concatenate((np.zeros(6), qpos[7:] + qvel[6:]*dt - target_pos))
+        # qvel_err = qvel
+        # q_accel = self.compute_desired_accel(qpos_err, qvel_err, k_p, k_d)
+        # qvel_err += q_accel * dt
+        # torque = -cfg.jkp * qpos_err[6:] - cfg.jkd * qvel_err[6:]
+        # return torque
 
     """ RFC-Implicit """
     def rfc_implicit(self, vf):
@@ -184,7 +199,7 @@ class HumanoidTemplate(MujocoEnv):
         self.data.qfrc_applied[:vf.shape[0]] = vf
 
     def do_simulation(self, action, n_frames):
-        t0 = time.time()
+       
         cfg = self.cfg
         for i in range(n_frames):
             ctrl = action
@@ -249,8 +264,8 @@ class HumanoidTemplate(MujocoEnv):
                 expert['cycle_relheading'] = np.array([1, 0, 0, 0])
                 expert['cycle_pos'] = expert['init_pos'].copy()
             elif self.get_expert_index(self.cur_t) == 0:
-                expert['cycle_relheading'] = quaternion_multiply(get_heading_q(self.data.qpos[3:7]),
-                                                              quaternion_inverse(expert['init_heading']))
+                expert['cycle_relheading'] = quat_mul(get_heading_q(self.data.qpos[3:7]),
+                                                              quat_inverse_no_norm(expert['init_heading']))
                 expert['cycle_pos'] = np.concatenate((self.data.qpos[:2], expert['init_pos'][[2]]))
     
     def get_phase(self):

@@ -107,3 +107,10 @@ def multi_quat_norm(nq):
     nq_norm = np.arccos(np.clip(abs(nq[::4]), -1.0, 1.0))
     return nq_norm
 
+
+
+def quat_mul_vec(q, v):
+    old_shape = v.shape
+    v = v.reshape(-1, 3)
+    v = v.dot(quaternion_matrix(q)[:3, :3].T)
+    return v.reshape(old_shape)

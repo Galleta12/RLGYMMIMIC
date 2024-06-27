@@ -1,6 +1,6 @@
 
 #slightly modified code from insactor https://github.com/jiawei-ren/insactor
-
+#code similar to rfc code  https://github.com/Khrylx/RFC
 import numpy as np
 import math
 _EPS = np.finfo(float).eps * 4.0
@@ -127,6 +127,11 @@ def quat_inverse_no_norm(q):
     q_norm_sq = np.sum(q * q)
     return np.array(q_conj / q_norm_sq, dtype=np.float64)
 
+
+
+
+#code gotted from the transformation.py file check it for more
+#information
 def quaternion_matrix(quaternion):
     """Return homogeneous rotation matrix from quaternion.
     """

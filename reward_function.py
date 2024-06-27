@@ -1,8 +1,9 @@
 import numpy as np
 import math
-from rfc_utils.rfc_math import *
+from some_math.math_utils import *
+from agent_envs.humanoid_env import HumanoidTemplate
 
-def world_rfc_implicit_reward(env, state, action, info):
+def world_rfc_implicit_reward(env:HumanoidTemplate, state, action, info):
     # reward coefficients
     cfg = env.cfg
     ws = cfg.reward_weights
@@ -64,7 +65,7 @@ def world_rfc_implicit_reward(env, state, action, info):
     return reward, np.array([pose_reward, vel_reward, ee_reward, com_reward, vf_reward])
 
 
-def world_reward(env, state, action, info):
+def world_reward(env:HumanoidTemplate, state, action, info):
     # reward coefficients
     #print("world reward")
     cfg = env.cfg
