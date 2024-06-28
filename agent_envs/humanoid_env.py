@@ -53,7 +53,12 @@ class HumanoidTemplate(MujocoEnv):
         self.metadata['render_fps'] = int(np.round(1.0 / self.dt))
         
         self.cfg = cfg
-        self.ee_name = ['lfoot', 'rfoot', 'lwrist', 'rwrist', 'head']
+        
+        if not self.cfg.use_standard_model:
+            self.ee_name = ['lfoot', 'rfoot', 'lwrist', 'rwrist', 'head']
+        else:
+            self.ee_name = ['right_ankle', 'left_ankle', 'right_wrist', 'left_wrist']
+            
         self.end_reward = 0.0
         self.start_ind = 0
         self.body_names = self.set_body_names()
@@ -126,8 +131,13 @@ class HumanoidTemplate(MujocoEnv):
         root_pos = data.qpos[:3]
         root_q = data.qpos[3:7].copy()
         for name in self.ee_name:
-            bone_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_BODY, name)
-            bone_vec = self.data.xpos[bone_id]
+            
+            if not self.cfg.use_standard_model: 
+                bone_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_BODY, name)
+                bone_vec = self.data.xpos[bone_id]
+            else:
+                bone_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_GEOM, name)
+                bone_vec = self.data.geom_xpos[bone_id]
             if transform is not None:
                 
                 bone_vec = bone_vec - root_pos

@@ -88,6 +88,8 @@ class Config:
         self.obs_vel = cfg.get('obs_vel', 'full')
         self.root_deheading = cfg.get('root_deheading', False)
         self.action_type = cfg.get('action_type', 'position')
+        
+        self.use_standard_model = cfg.get('use_standard_model', False)
 
         # virutual force
         self.residual_force = cfg.get('residual_force', False)
