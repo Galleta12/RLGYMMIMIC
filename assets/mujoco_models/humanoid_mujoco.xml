@@ -4,7 +4,7 @@
         <joint limited="true" armature="1" damping="1"/>
         <geom conaffinity="1" condim="1" contype="1" margin="0.001" rgba="0.7 0.5 .3 1"/>
         <site rgba="0.7 0.5 0.3 1"/>
-        <motor ctrllimited="true" ctrlrange="-1 1"/>
+        <motor ctrllimited="true" ctrlrange="-0.5 0.5"/>
     </default>
     <option integrator="RK4" iterations="50" solver="PGS" timestep="0.00222222222">
     </option>
@@ -118,40 +118,41 @@
         <exclude body1="left_elbow" body2="left_shoulder"/>
     </contact>
 
+  
     <actuator>
-        <motor gear="1" joint="chest_x" name="chest_x"/>
-        <motor gear="1" joint="chest_y" name="chest_y"/>
-        <motor gear="1" joint="chest_z" name="chest_z"/>
-        <motor gear="1" joint="neck_x" name="neck_x"/>
-        <motor gear="1" joint="neck_y" name="neck_y"/>
-        <motor gear="1" joint="neck_z" name="neck_z"/>
+        <motor gear="200" joint="chest_x" name="chest_x"/>
+        <motor gear="200" joint="chest_y" name="chest_y"/>
+        <motor gear="200" joint="chest_z" name="chest_z"/>
+        <motor gear="50" joint="neck_x" name="neck_x"/>
+        <motor gear="50" joint="neck_y" name="neck_y"/>
+        <motor gear="50" joint="neck_z" name="neck_z"/>
 
-        <motor gear="1" joint="right_shoulder_x" name="right_shoulder_x"/>
-        <motor gear="1" joint="right_shoulder_y" name="right_shoulder_y"/>
-        <motor gear="1" joint="right_shoulder_z" name="right_shoulder_z"/>
-        <motor gear="1" joint="right_elbow" name="right_elbow"/>
+        <motor gear="100" joint="right_shoulder_x" name="right_shoulder_x"/>
+        <motor gear="100" joint="right_shoulder_y" name="right_shoulder_y"/>
+        <motor gear="100" joint="right_shoulder_z" name="right_shoulder_z"/>
+        <motor gear="60" joint="right_elbow" name="right_elbow"/>
 
-        <motor gear="1" joint="left_shoulder_x" name="left_shoulder_x"/>
-        <motor gear="1" joint="left_shoulder_y" name="left_shoulder_y"/>
-        <motor gear="1" joint="left_shoulder_z" name="left_shoulder_z"/>
-        <motor gear="1" joint="left_elbow" name="left_elbow"/>
+        <motor gear="100" joint="left_shoulder_x" name="left_shoulder_x"/>
+        <motor gear="100" joint="left_shoulder_y" name="left_shoulder_y"/>
+        <motor gear="100" joint="left_shoulder_z" name="left_shoulder_z"/>
+        <motor gear="60" joint="left_elbow" name="left_elbow"/>
 
-        <motor gear="1" joint="right_hip_x" name="right_hip_x"/>
-        <motor gear="1" joint="right_hip_y" name="right_hip_y"/>
-        <motor gear="1" joint="right_hip_z" name="right_hip_z"/>
+        <motor gear="200" joint="right_hip_x" name="right_hip_x"/>
+        <motor gear="200" joint="right_hip_y" name="right_hip_y"/>
+        <motor gear="200" joint="right_hip_z" name="right_hip_z"/>
 
-        <motor gear="1" joint="right_knee" name="right_knee"/>
-        <motor gear="1" joint="right_ankle_x" name="right_ankle_x"/>
-        <motor gear="1" joint="right_ankle_y" name="right_ankle_y"/>
-        <motor gear="1" joint="right_ankle_z" name="right_ankle_z"/>
+        <motor gear="150" joint="right_knee" name="right_knee"/>
+        <motor gear="90" joint="right_ankle_x" name="right_ankle_x"/>
+        <motor gear="90" joint="right_ankle_y" name="right_ankle_y"/>
+        <motor gear="90" joint="right_ankle_z" name="right_ankle_z"/>
 
-        <motor gear="1" joint="left_hip_x" name="left_hip_x"/>
-        <motor gear="1" joint="left_hip_y" name="left_hip_y"/>
-        <motor gear="1" joint="left_hip_z" name="left_hip_z"/>
+        <motor gear="200" joint="left_hip_x" name="left_hip_x"/>
+        <motor gear="200" joint="left_hip_y" name="left_hip_y"/>
+        <motor gear="200" joint="left_hip_z" name="left_hip_z"/>
 
-        <motor gear="1" joint="left_knee" name="left_knee"/>
-        <motor gear="1" joint="left_ankle_x" name="left_ankle_x"/>
-        <motor gear="1" joint="left_ankle_y" name="left_ankle_y"/>
-        <motor gear="1" joint="left_ankle_z" name="left_ankle_z"/>
+        <motor gear="150" joint="left_knee" name="left_knee"/>
+        <motor gear="90" joint="left_ankle_x" name="left_ankle_x"/>
+        <motor gear="90" joint="left_ankle_y" name="left_ankle_y"/>
+        <motor gear="90" joint="left_ankle_z" name="left_ankle_z"/>
     </actuator>
 </mujoco>

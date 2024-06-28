@@ -51,8 +51,7 @@ class HumanoidReplay(MujocoEnv):
         self.metadata['render_fps'] = int(np.round(self.metadata['render_fps'] / frame_skip))
     
         #self.metadata['render_fps'] = int(np.round(1.0 / self.dt))
-
-    
+ 
     def forward(self):
         mj.mj_forward(self.model, self.data)
 
