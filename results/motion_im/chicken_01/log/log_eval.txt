@@ -34,3 +34,12 @@
 [2024-06-23 23:52:39,476] loading model from checkpoint: results/motion_im/chicken_01/models/iter_2000.p
 [2024-06-23 23:52:53,829] loading model from checkpoint: results/motion_im/chicken_01/models/iter_2000.p
 [2024-06-25 09:53:11,954] loading model from checkpoint: results/motion_im/chicken_01/models/iter_2000.p
+[2024-06-28 10:45:38,216] loading model from checkpoint: results/motion_im/chicken_01/models/iter_1300.p
+[2024-06-28 10:48:11,457] loading model from checkpoint: results/motion_im/chicken_01/models/iter_0100.p
+[2024-06-28 10:53:34,431] loading model from checkpoint: results/motion_im/chicken_01/models/iter_0200.p
+[2024-06-28 10:53:59,889] loading model from checkpoint: results/motion_im/chicken_01/models/iter_1000.p
+[2024-06-28 11:03:14,689] loading model from checkpoint: results/motion_im/chicken_01/models/iter_0200.p
+[2024-06-28 11:36:04,878] loading model from checkpoint: results/motion_im/chicken_01/models/iter_0200.p
+[2024-06-28 11:36:20,509] loading model from checkpoint: results/motion_im/chicken_01/models/iter_2000.p
+[2024-06-28 11:36:52,107] loading model from checkpoint: results/motion_im/chicken_01/models/iter_2000.p
+[2024-06-28 11:40:45,677] loading model from checkpoint: results/motion_im/chicken_01/models/iter_2000.p

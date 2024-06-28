@@ -4,3 +4,6 @@
 [2024-06-24 05:13:32,826] loading model from checkpoint: results/motion_im/run_01/models/iter_1000.p
 [2024-06-25 09:50:00,094] loading model from checkpoint: results/motion_im/run_01/models/iter_1000.p
 [2024-06-25 10:04:56,648] loading model from checkpoint: results/motion_im/run_01/models/iter_1000.p
+[2024-06-28 11:03:50,235] loading model from checkpoint: results/motion_im/run_01/models/iter_0200.p
+[2024-06-28 11:04:37,631] loading model from checkpoint: results/motion_im/run_01/models/iter_1000.p
+[2024-06-28 11:41:16,843] loading model from checkpoint: results/motion_im/run_01/models/iter_0200.p
