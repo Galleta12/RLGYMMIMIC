@@ -6,9 +6,9 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 from some_math.math_utils import *
-from agent_envs.humanoid_env import HumanoidTemplate
+#from agent_envs.humanoid_env import HumanoidTemplate
 
-def get_expert(expert_qpos, expert_meta, env:HumanoidTemplate):
+def get_expert(expert_qpos, expert_meta,env):
     # Save the old state
     old_state_qpos = env.data.qpos.copy()
     old_state_qvel = env.data.qvel.copy()

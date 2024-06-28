@@ -120,6 +120,7 @@ def visualize():
  
 
 expert_traj = convert_amc_file()
+print("trajectory shape: ",expert_traj.shape)
 select_start = 0
 select_end = expert_traj.shape[0]
 g_offset = 0

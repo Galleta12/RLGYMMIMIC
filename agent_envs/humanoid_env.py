@@ -53,6 +53,7 @@ class HumanoidTemplate(MujocoEnv):
         self.metadata['render_fps'] = int(np.round(1.0 / self.dt))
         
         self.cfg = cfg
+        self.ee_name = ['lfoot', 'rfoot', 'lwrist', 'rwrist', 'head']
         self.end_reward = 0.0
         self.start_ind = 0
         self.body_names = self.set_body_names()
@@ -62,7 +63,6 @@ class HumanoidTemplate(MujocoEnv):
         self.expert = None
         self.load_expert()
         self.set_spaces()
-        self.ee_name = ['lfoot', 'rfoot', 'lwrist', 'rwrist', 'head']
     
     def set_body_names(self):
         body_names = [mj.mj_id2name(self.model, mj.mjtObj.mjOBJ_BODY, i) for i in range(self.model.nbody)]
