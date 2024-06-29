@@ -17,16 +17,17 @@ def get_heading_q(q):
 
 def get_heading(q):
     hq = q.copy()
+    #zeroing x and y
     hq[1] = 0
     hq[2] = 0
     #ensure quat is positive
     hp = np.where(hq[3]<0,-1*hp,hp)
     #normalize quaternion
     hq /= np.linalg.norm(hq)
-    #restun angle
+    #return angle
     return 2 * math.acos(hq[0])
 
-
+#this is to apply the inverse of the heading, basically undo the rotation of the heading
 def de_heading(q):
     #normalize quaternon
     
@@ -71,7 +72,7 @@ def get_angvel_fd(prev_bquat, cur_bquat, dt):
 
 
 
-def get_qvel_fd_new(cur_qpos, next_qpos, dt):
+def get_qvel_fd_new(cur_qpos, next_qpos, dt, transform=None):
     #traslational velocity
     v = (next_qpos[:3] - cur_qpos[:3]) / dt
     #next_pos_norm = quat_normalize(next_qpos[3:7])
@@ -98,6 +99,16 @@ def get_qvel_fd_new(cur_qpos, next_qpos, dt):
     #angular velocities
     qvel = diff / dt
     qvel = np.concatenate((v, rv, qvel))
+    
+    if transform is not None:
+        if transform == 'root':
+            v = transform_vec(v, cur_qpos[3:7])
+        elif transform == 'heading':   
+            #print('qvel heading')
+            hq = get_heading_q(cur_qpos[3:7])
+            v = transform_vec(v, hq)
+        
+        qvel[:3] = v
     
     return qvel
 

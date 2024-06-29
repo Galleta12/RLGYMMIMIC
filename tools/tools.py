@@ -30,16 +30,18 @@ def get_expert(expert_qpos, expert_meta,env):
         bquat = env.get_body_quat()
         com = env.get_com()
         
+        #if not using the standard humanoid model
         if not env.cfg.use_standard_model:
             head_pos = env.get_body_com('head').copy()
         else:
-            head_pos = env.get_body_com('root').copy()
+            head_pos = env.get_body_com('neck').copy()
             
         if i > 0:
             prev_qpos = expert_qpos[i - 1]
             qvel = get_qvel_fd_new(prev_qpos, qpos, env.dt)
             qvel = qvel.clip(-10.0, 10.0)
             rlinv = qvel[:3].copy()
+            #transform the relative linear v
             if env.cfg.obs_coord =='root':
                 rlinv_local = transform_vec(qvel[:3].copy(), qpos[3:7])
             elif env.cfg.obs_coord =='heading':

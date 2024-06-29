@@ -104,15 +104,17 @@ class HumanoidBase(MujocoEnv):
         data = self.data
         qpos = data.qpos.copy()
         qvel = data.qvel.copy()
-        # transform velocity
+        # transform velocity needs to be realitve to the specified coordinate frame
         if self.cfg.obs_coord == 'root':
             qvel[:3] = transform_vec(qvel[:3], qpos[3:7]).ravel()
         elif self.cfg.obs_coord =='heading':
+            #print('obs coord', self.cfg.obs_coord)
             hq = get_heading_q(qpos[3:7])
             qvel[:3] = transform_vec(qvel[:3], hq).ravel()
             
         obs = []
-        # pos
+
+
         obs.append(qpos[2:])
             
         obs.append(qvel)

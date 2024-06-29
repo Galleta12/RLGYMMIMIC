@@ -19,6 +19,9 @@ from some_math.transformation import quaternion_from_euler
 from common.mujoco_envs import MujocoEnv
 from agent_envs.pd_controllers import stable_pd_controller
 from agent_envs.humanoid_template import HumanoidBase
+
+from reward_function import world_rfc_implicit_reward,local_rfc_implicit_reward,world_reward
+
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
     "distance": 4.0,
@@ -95,8 +98,14 @@ class HumanoidReplayMocap(HumanoidBase):
         self.bquat = self.get_body_quat()
         
         
-        reward = 1.0
+        #reward = 1.0
 
+        reward, reward_info = world_reward(self,None,a,None)
+        #reward, reward_info = world_rfc_implicit_reward(self,None,a,None)
+        #reward, reward_info = local_rfc_implicit_reward(self,None,a,None)
+        print("reward", reward)
+        print("reward infor", reward_info)
+        
         fail = self.expert is not None and self.data.qpos[2] < self.expert['height_lb'] - 0.1
         cyclic = self.expert['meta']['cyclic']
         end =  (cyclic and self.cur_t >= cfg.env_episode_len) or (not cyclic and self.cur_t + self.start_ind >= self.expert['len'])

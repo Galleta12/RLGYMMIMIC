@@ -27,7 +27,8 @@ print('start ind', env_mocap.start_ind)
 print('expert lenght', env_mocap.expert['len'])
 print('meta:', env_mocap.expert['meta'])
 print('meta cyclic:', env_mocap.expert['meta']['cyclic'])
-
+print('reward id', env_mocap.cfg.reward_id)
+print('heading coord', env_mocap.cfg.obs_coord)
 
 def visualize():
     obs= env_mocap.reset()
@@ -42,8 +43,8 @@ def visualize():
         env_mocap.render()
         if done:
             print('done')
-            #break
-            obs= env_mocap.reset()
+            break
+            #obs= env_mocap.reset()
 
 
 visualize()
