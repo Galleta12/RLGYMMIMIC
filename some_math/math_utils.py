@@ -20,7 +20,7 @@ def get_heading(q):
     hq[1] = 0
     hq[2] = 0
     #ensure quat is positive
-    hp = np.where(hq[3]<0,-hp,hp)
+    hp = np.where(hq[3]<0,-1*hp,hp)
     #normalize quaternion
     hq /= np.linalg.norm(hq)
     #restun angle
