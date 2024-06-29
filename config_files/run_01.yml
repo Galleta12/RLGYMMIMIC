@@ -41,7 +41,6 @@ mujoco_model: mocap_v2
 vis_model: mocap_v2_vis
 env_episode_len: 200
 env_term_body: 'root'
-env_expert_trail_steps: 10
 obs_coord: 'root'
 obs_phase: true
 
