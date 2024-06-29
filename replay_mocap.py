@@ -25,7 +25,8 @@ print('expert trail', env_mocap.cfg.env_expert_trail_steps)
 print('env start first',env_mocap.cfg.env_start_first)
 print('start ind', env_mocap.start_ind)
 print('expert lenght', env_mocap.expert['len'])
-
+print('meta:', env_mocap.expert['meta'])
+print('meta cyclic:', env_mocap.expert['meta']['cyclic'])
 
 
 def visualize():

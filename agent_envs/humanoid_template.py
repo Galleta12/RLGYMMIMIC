@@ -212,6 +212,7 @@ class HumanoidBase(MujocoEnv):
     def update_expert(self):
         expert = self.expert
         if expert['meta']['cyclic']:
+            #print('Meta cyclic')
             if self.cur_t == 0:
                 expert['cycle_relheading'] = np.array([1, 0, 0, 0])
                 expert['cycle_pos'] = expert['init_pos'].copy()

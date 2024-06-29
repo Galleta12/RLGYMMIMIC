@@ -80,20 +80,20 @@ class HumanoidReplayMocap(HumanoidBase):
         self.prev_qpos = self.data.qpos.copy()
         self.prev_qvel = self.data.qvel.copy()
         self.prev_bquat = self.bquat.copy()
-        self.do_simulation(a, self.frame_skip)
+        #self.do_simulation(a, self.frame_skip)
         
-        #index for the exper add
+        #index for the expert add
         self.cur_t += 1
-        #print("index expert", self.cur_t)
+        print("index expert", self.cur_t)
         t = self.get_expert_index(self.cur_t)
-        #print('t', t)
-        #self.data.qpos[:] = self.get_expert_attr('qpos', t).copy()
+        print('t', t)
+        self.data.qpos[:] = self.get_expert_attr('qpos', t).copy()
         
-        #mj.mj_forward(self.model, self.data)
+        mj.mj_forward(self.model, self.data)
+        self.update_expert()
         
         self.bquat = self.get_body_quat()
         
-        self.update_expert()
         
         reward = 1.0
 
