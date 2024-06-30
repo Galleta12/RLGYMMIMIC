@@ -1,1 +1,5 @@
 [2024-06-30 13:41:24,097] loading model from checkpoint: results/motion_im/8801/models/iter_1000.p
+[2024-06-30 13:45:11,232] loading model from checkpoint: results/motion_im/8801/models/iter_1700.p
+[2024-06-30 13:45:41,251] loading model from checkpoint: results/motion_im/8801/models/iter_1000.p
+[2024-06-30 13:48:06,163] loading model from checkpoint: results/motion_im/8801/models/iter_0100.p
+[2024-06-30 13:48:20,855] loading model from checkpoint: results/motion_im/8801/models/iter_0500.p
