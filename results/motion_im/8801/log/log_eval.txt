@@ -1,0 +1,1 @@
+[2024-06-30 13:41:24,097] loading model from checkpoint: results/motion_im/8801/models/iter_1000.p
