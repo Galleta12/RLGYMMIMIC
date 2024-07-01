@@ -27,3 +27,4 @@
 [2024-07-01 01:34:33,930] loading model from checkpoint: results/motion_im/punch_02_test/models/iter_1700.p
 [2024-07-01 02:21:52,649] loading model from checkpoint: results/motion_im/punch_02_test/models/iter_1800.p
 [2024-07-01 02:55:11,710] loading model from checkpoint: results/motion_im/punch_02_test/models/iter_1900.p
+[2024-07-01 03:23:44,602] loading model from checkpoint: results/motion_im/punch_02_test/models/iter_2000.p
