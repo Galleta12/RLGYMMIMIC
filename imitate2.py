@@ -5,17 +5,10 @@ import pickle
 import time
 import datetime
 import gymnasium as gym
-from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
-from stable_baselines3 import PPO
-from stable_baselines3.common.callbacks import BaseCallback
-from stable_baselines3.common.env_util import make_vec_env
 import torch
 import torch.nn as nn
 from torch.distributions.uniform import Uniform
-from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
-from stable_baselines3.common.policies import ActorCriticPolicy
 from torch.distributions import Normal
-from stable_baselines3.common.policies import MultiInputActorCriticPolicy
 sys.path.append(os.getcwd())
 from rfc_utils.config import Config
 from agent_envs.humanoid_env2 import HumanoidTemplate
@@ -41,12 +34,17 @@ if args.render:
     args.num_threads = 1
 cfg = Config(args.cfg, args.test, create_dirs=not (args.render or args.iter > 0))
 
-def make_env():
-    def thunk():
-        env = HumanoidTemplate(cfg)
-        env.seed(cfg.seed)
-        return env
-    return thunk
+
+
+
+#
+
+def test():
+    pass
+
+
+
+
 
 
 
