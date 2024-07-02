@@ -5,3 +5,5 @@
 [2024-06-30 16:23:56,254] loading model from checkpoint: results/motion_im/punch_02/models/iter_0400.p
 [2024-06-30 16:24:20,815] loading model from checkpoint: results/motion_im/punch_02/models/iter_0100.p
 [2024-06-30 16:24:39,381] loading model from checkpoint: results/motion_im/punch_02/models/iter_0200.p
+[2024-07-01 21:26:25,051] loading model from checkpoint: results/motion_im/punch_02/models/iter_0200.p
+[2024-07-01 21:26:31,481] loading model from checkpoint: results/motion_im/punch_02/models/iter_0200.p
