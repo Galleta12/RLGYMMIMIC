@@ -24,7 +24,7 @@ log_std: -2.3
 fix_std: true
 max_iter_num: 2000
 seed: 1
-save_model_interval: 100
+save_model_interval: 50
 reward_id: 'world_rfc_implicit'
 reward_weights:
   w_p: 0.3

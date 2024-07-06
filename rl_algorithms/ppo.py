@@ -39,10 +39,19 @@ class PPO(Agent):
     def update_policy(self, states, actions, returns, advantages, exps):
         
         """update policy"""
-        with to_test(*self.update_modules):
-            with torch.no_grad():
-                fixed_log_probs = self.policy_net.get_log_prob(self.trans_policy(states), actions)
+        #with to_test(*self.update_modules):
+        self.policy_net.train(False)
+        self.value_net.train(False)
+        with torch.no_grad():
+           
+            fixed_log_probs = self.policy_net.get_log_prob(self.trans_policy(states), actions)
 
+        
+        
+        #set it to train
+        self.policy_net.train(True)
+        self.value_net.train(True)
+        
         for _ in range(self.opt_num_epochs):
             if self.use_mini_batch:
                 perm = np.arange(states.shape[0])
@@ -94,16 +103,26 @@ class PPO(Agent):
     def update_params(self, batch):
         t0 = time.time()
         
-        to_train(*self.update_modules)
+        #to_train(*self.update_modules)
+        
+        # #set test mode
+        # self.policy_net.train(True)
+        # self.value_net.train(True)
+        
         states = torch.from_numpy(batch.states).to(self.dtype).to(self.device)
         actions = torch.from_numpy(batch.actions).to(self.dtype).to(self.device)
         rewards = torch.from_numpy(batch.rewards).to(self.dtype).to(self.device)
         masks = torch.from_numpy(batch.masks).to(self.dtype).to(self.device)
         exps = torch.from_numpy(batch.exps).to(self.dtype).to(self.device)
-        with to_test(*self.update_modules):
-            with torch.no_grad():
-                values = self.value_net(self.trans_value(states))
-
+        #with to_test(*self.update_modules):
+        
+        self.policy_net.train(False)
+        self.value_net.train(False)
+        with torch.no_grad():
+            values = self.value_net(self.trans_value(states))
+        #self.policy_net.train(True)
+        #self.value_net.train(True)
+        
         """get advantage estimation from the trajectories"""
         advantages, returns = estimate_advantages(rewards, masks, values, self.gamma, self.tau)
 

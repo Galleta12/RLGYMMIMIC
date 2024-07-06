@@ -15,22 +15,9 @@ class Policy(nn.Module):
 
     def select_action(self, x, mean_action=False):
         dist = self.forward(x)
-        if isinstance(mean_action, bool):  # Check if mean_action is a single boolean
-            if mean_action:
-                action = dist.mean_sample()
-            else:
-                action = dist.sample()
-        
-        else:
-            actions = []
-            for i, mean_act in enumerate(mean_action):
-                if mean_act:
-                    actions.append(dist.mean_sample()[i])
-                else:
-                    actions.append(dist.sample()[i])
-            action = torch.stack(actions)
-        
+        action = dist.mean_sample() if mean_action else dist.sample()
         return action
+
         
 
     def get_kl(self, x):

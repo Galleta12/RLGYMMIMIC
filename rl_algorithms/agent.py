@@ -10,14 +10,16 @@ import time
 import os
 from rl_algorithms.logger_rl import LoggerRL
 from utils.torch import *
-from utils.memory import MemoryManager,TrajBatch
+#from utils.memory import MemoryManager,TrajBatch
+from rl_rfc.core import TrajBatch
+from rfc_utils.memory import Memory
 os.environ["OMP_NUM_THREADS"] = "1"
 
 
 class Agent:
+
     def __init__(self, env, policy_net, value_net, dtype, device, gamma, custom_reward=None,
-                 mean_action=False, running_state=None, 
-                 num_envs=1, n_steps=1, batch_size=2048):
+                 end_reward=True, mean_action=False, render=False, running_state=None, num_threads=1):
         self.env = env
         self.policy_net = policy_net
         self.value_net = value_net
@@ -25,109 +27,128 @@ class Agent:
         self.device = device
         self.gamma = gamma
         self.custom_reward = custom_reward
+        self.end_reward = end_reward
         self.mean_action = mean_action
         self.running_state = running_state
-        #num of envs
+        self.render = render
+        self.num_threads = num_threads
         self.noise_rate = 1.0
-        # self.traj_cls = TrajBatch
+        self.traj_cls = TrajBatch
+        self.logger_cls = LoggerRL
         self.sample_modules = [policy_net]
         self.update_modules = [policy_net, value_net]
-    
-        self.num_timesteps = n_steps
-        
-        self.batch_size = batch_size
-        
-        self.num_envs = num_envs
-    
-        self.step =0
-    
-    def collect_rollout(self,memory):
-        states, infos, norm_states = self.env.reset()
-        
-        for _ in range(0,self.num_timesteps+1):
-            #select an actino from the policy
-            actions,mean_actions = self.select_actions(norm_states)
-            #be sure action is float 64
-            actions = actions.astype(np.float64)
-            #step on the vec env
-            next_states, rewards_env, terminateds, truncateds, infos,norm_next_states, loggers = self.env.step(actions)
-            
-            rewards = rewards_env
-            mask = np.where(terminateds, 0, 1)
-            exp = 1 - mean_actions            
-            #save the normalized states
-            #prediciton/actions is not defined I will change this later
-            memory.append(norm_states, actions, rewards, actions, terminateds, truncateds, norm_next_states,mask, exp, infos)
-             
-            
-            norm_states = norm_next_states
-            
-            #print(norm_states.shape)
-            
-            for index in memory.done_indices():
-                #print('index', index)
-                
-                env_memory = memory[index]
-                states, actions, rewards, old_probs, dones, truncateds, next_state, masks, exps,infos = env_memory.get()
-                #set the logger on the multi vec env
-                logger = self.env.end_episode_log(index) 
-                #print('num_episodes', logger.num_episodes)
-                #print('num_steps', logger.num_steps)
-                states, _, norm_states[index] = self.env.reset(index)
 
+    def sample_worker(self, pid, queue, min_batch_size):
+        torch.randn(pid)
+        if hasattr(self.env, 'np_random'):
+            #self.env.np_random.rand(pid)
+            #self.env.np_random.seed(pid)
+            #random_value = self.env.np_random.random()
+            self.env.np_random.random()
+        memory = Memory()
+        logger = self.logger_cls()
+
+        while logger.num_steps < min_batch_size:
+            state , _ = self.env.reset()
+            if self.running_state is not None:
+                state = self.running_state(state)
+            logger.start_episode(self.env)
+           
+
+            for t in range(10000):
+                state_var = tensor(state).unsqueeze(0)
+                trans_out = self.trans_policy(state_var)
+                mean_action = self.mean_action or self.env.np_random.binomial(1, 1 - self.noise_rate)
+               
+                #print('mean action new', mean_action)
+                
+                action = self.policy_net.select_action(trans_out, mean_action)[0]
+                
+                action = action.numpy()
+                action = int(action) if self.policy_net.type == 'discrete' else action.astype(np.float64)
+                next_state, env_reward, done,_,info = self.env.step(action)
+                
+                
+                if self.running_state is not None:
+                    #print('running state')
+                    
+                    next_state = self.running_state(next_state)
+                # use custom or env reward
+                if self.custom_reward is not None:
+                    #print('cusrom reward')
+                    
+                    c_reward, c_info = self.custom_reward(self.env, state, action, info)
+                    reward = c_reward
+                # logging
+                logger.step(self.env, env_reward, c_reward, c_info, info)
+
+                mask = 0 if done else 1
+                exp = 1 - mean_action
+                self.push_memory(memory, state, action, mask, next_state, reward, exp)
+
+                if pid == 0 and self.render:
+                    self.env.render()
+                if done:
+                    break
+                state = next_state
+
+            logger.end_episode(self.env)
+            #print('print num epiode', logger.num_episodes)
+            #print('print num stpes', logger.num_steps)
             
-            
-            self.step += self.num_envs
+        logger.end_sampling()
+        #print('print num epiode', logger.avg_episode_len)
+
+        if queue is not None:
+            queue.put([pid, memory, logger])
+        else:
+            return memory, logger
+
+
+    def push_memory(self, memory, state, action, mask, next_state, reward, exp):
+        memory.push(state, action, mask, next_state, reward, exp)
+
+
+    def sample(self, min_batch_size):
+        t_start = time.time()
         
-                            
+        #not sure why valus is not fale
+        
+        #to_test(*self.sample_modules)
+        #set to test
+        self.policy_net.train(False)
+        
+        with to_cpu(*self.sample_modules):
+            with torch.no_grad():
+                thread_batch_size = int(math.floor(min_batch_size / self.num_threads))
+                #print('thread batch size', thread_batch_size)
+                queue = multiprocessing.Queue()
+                memories = [None] * self.num_threads
+                loggers = [None] * self.num_threads
+                for i in range(self.num_threads-1):
+                    worker_args = (i+1, queue, thread_batch_size)
+                    worker = multiprocessing.Process(target=self.sample_worker, args=worker_args)
+                    worker.start()
+                
+                memories[0], loggers[0] = self.sample_worker(0, None, thread_batch_size)
+                for i in range(self.num_threads - 1):
+                    pid, worker_memory, worker_logger = queue.get()
+                    memories[pid] = worker_memory
+                    loggers[pid] = worker_logger
+                traj_batch = self.traj_cls(memories)
+                logger = self.logger_cls.merge(loggers)
+
+            logger.sample_time = time.time() - t_start
+            return traj_batch, logger
+
     def trans_policy(self, states):
         """transform states before going into policy net"""
         #print('trans policy')
         return states
-    
-    #rollout
-    def sample(self):
-       
-        t_start = time.time()
-        to_test(*self.sample_modules)
-        memory_manager = MemoryManager(num_envs=self.num_envs)
-        
-        with to_cpu(*self.sample_modules):
-            with torch.no_grad(): 
-                while self.step < self.batch_size:
-                    self.collect_rollout(memory_manager)
-                    #print('step end',self.step)
-        
-        sample_time = time.time() - t_start
-        loggers = self.env.log_sample()
-        logger = LoggerRL.merge(loggers)                                
-        logger.sample_time = sample_time
-        traj_batch = TrajBatch(memory_manager)
-        #reset
-        self.step = 0
-        
-        return traj_batch,logger
-          
-    def select_actions(self, states):
-        state_vars = torch.tensor(states)
-        trans_out = self.trans_policy(state_vars)
-        
-        # Generate mean_action flags for each environment
-        if self.mean_action:
-            mean_actions = np.ones(self.num_envs)
-        else:
-            #print('new noise rate', no)
-            mean_actions = self.env.mean_actions(self.noise_rate)
-            #print('mean action vec', mean_actions)
-        #print('mean actions', mean_actions)
-        
-        actions = self.policy_net.select_action(trans_out, mean_action=mean_actions)
-        return actions.cpu().numpy(), mean_actions
-                    
-                    
-    def set_noise_rate(self, noise_rate):
-        self.noise_rate = noise_rate
 
     def trans_value(self, states):
         """transform states before going into value net"""
         return states
+
+    def set_noise_rate(self, noise_rate):
+        self.noise_rate = noise_rate

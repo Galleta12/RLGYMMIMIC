@@ -54,6 +54,7 @@ class to_test:
         self.prev_modes = [x.training for x in self.models]
         for x in self.models:
             x.train(False)
+            print(f'Model {x.__class__.__name__} set to eval mode: {not x.training}')
 
     def __enter__(self):
         pass
@@ -61,6 +62,7 @@ class to_test:
     def __exit__(self, *args):
         for x, mode in zip(self.models, self.prev_modes):
             x.train(mode)
+            print(f'Model {x.__class__.__name__} reverted to {"train" if mode else "eval"} mode: {x.training}')
         return False
 
 
@@ -71,6 +73,7 @@ class to_train:
         self.prev_modes = [x.training for x in self.models]
         for x in self.models:
             x.train(True)
+            print(f'Model {x.__class__.__name__} set to train mode: {x.training}')
 
     def __enter__(self):
         pass
@@ -78,6 +81,7 @@ class to_train:
     def __exit__(self, *args):
         for x, mode in zip(self.models, self.prev_modes):
             x.train(mode)
+            print(f'Model {x.__class__.__name__} reverted to {"train" if mode else "eval"} mode: {x.training}')
         return False
 
 
