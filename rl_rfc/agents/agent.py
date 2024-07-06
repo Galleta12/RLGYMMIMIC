@@ -56,13 +56,22 @@ class Agent:
                 state_var = tensor(state).unsqueeze(0)
                 trans_out = self.trans_policy(state_var)
                 mean_action = self.mean_action or self.env.np_random.binomial(1, 1 - self.noise_rate)
+               
+                #print('mean action new', mean_action)
+                
                 action = self.policy_net.select_action(trans_out, mean_action)[0].numpy()
                 action = int(action) if self.policy_net.type == 'discrete' else action.astype(np.float64)
                 next_state, env_reward, done, info = self.env.step(action)
+                
+                
                 if self.running_state is not None:
+                    #print('running state')
+                    
                     next_state = self.running_state(next_state)
                 # use custom or env reward
                 if self.custom_reward is not None:
+                    #print('cusrom reward')
+                    
                     c_reward, c_info = self.custom_reward(self.env, state, action, info)
                     reward = c_reward
                 else:
@@ -70,6 +79,7 @@ class Agent:
                     reward = env_reward
                 # add end reward
                 if self.end_reward and info.get('end', False):
+                    #print('end reward inside')
                     reward += self.env.end_reward
                 # logging
                 logger.step(self.env, env_reward, c_reward, c_info, info)
@@ -85,7 +95,11 @@ class Agent:
                 state = next_state
 
             logger.end_episode(self.env)
+            #print('print num epiode', logger.num_episodes)
+            #print('print num stpes', logger.num_steps)
+            
         logger.end_sampling()
+        #print('print num epiode', logger.avg_episode_len)
 
         if queue is not None:
             queue.put([pid, memory, logger])
@@ -99,6 +113,7 @@ class Agent:
         memory.push(state, action, mask, next_state, reward, exp)
 
     def pre_sample(self):
+        #print('pre samle lol')
         return
 
     def sample(self, min_batch_size):
@@ -108,6 +123,7 @@ class Agent:
         with to_cpu(*self.sample_modules):
             with torch.no_grad():
                 thread_batch_size = int(math.floor(min_batch_size / self.num_threads))
+                #print('thread batch size', thread_batch_size)
                 queue = multiprocessing.Queue()
                 memories = [None] * self.num_threads
                 loggers = [None] * self.num_threads
@@ -115,6 +131,7 @@ class Agent:
                     worker_args = (i+1, queue, thread_batch_size)
                     worker = multiprocessing.Process(target=self.sample_worker, args=worker_args)
                     worker.start()
+                
                 memories[0], loggers[0] = self.sample_worker(0, None, thread_batch_size)
 
                 for i in range(self.num_threads - 1):
@@ -129,6 +146,7 @@ class Agent:
 
     def trans_policy(self, states):
         """transform states before going into policy net"""
+        #print('trans policy')
         return states
 
     def trans_value(self, states):

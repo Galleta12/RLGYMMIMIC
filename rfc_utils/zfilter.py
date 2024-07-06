@@ -49,6 +49,7 @@ class ZFilter:
     """
 
     def __init__(self, shape, demean=True, destd=True, clip=10.0):
+        
         self.demean = demean
         self.destd = destd
         self.clip = clip
@@ -56,6 +57,7 @@ class ZFilter:
         self.rs = RunningStat(shape)
 
     def __call__(self, x, update=True):
+        
         if update:
             self.rs.push(x)
         if self.demean:

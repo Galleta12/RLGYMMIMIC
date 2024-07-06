@@ -64,7 +64,15 @@ def world_rfc_implicit_reward(env:HumanoidBase, state, action, info):
     # overall reward
     reward = w_p * pose_reward + w_v * vel_reward + w_e * ee_reward + w_c * com_reward + w_vf * vf_reward
     reward /= w_p + w_v + w_e + w_c + w_vf
+    
+    reward_info ={ 'pose_reward': pose_reward,
+                  'vel_reward':vel_reward,
+                  'com_reward':com_reward,
+                  'vf_reward': vf_reward} 
+    
+    
     return reward, np.array([pose_reward, vel_reward, ee_reward, com_reward, vf_reward])
+    #return reward, reward_info
 
 
 def world_reward(env:HumanoidBase, state, action, info):

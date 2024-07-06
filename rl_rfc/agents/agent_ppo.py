@@ -15,6 +15,7 @@ class AgentPPO(AgentPG):
         self.policy_grad_clip = policy_grad_clip
 
     def update_policy(self, states, actions, returns, advantages, exps):
+        
         """update policy"""
         with to_test(*self.update_modules):
             with torch.no_grad():
@@ -31,6 +32,8 @@ class AgentPPO(AgentPG):
                     fixed_log_probs[perm].clone(), exps[perm].clone()
 
                 optim_iter_num = int(math.floor(states.shape[0] / self.mini_batch_size))
+                
+               
                 for i in range(optim_iter_num):
                     ind = slice(i * self.mini_batch_size, min((i + 1) * self.mini_batch_size, states.shape[0]))
                     states_b, actions_b, advantages_b, returns_b, fixed_log_probs_b, exps_b = \

@@ -71,6 +71,10 @@ else:
 # reward functions
 expert_reward = reward_func[cfg.reward_id]
 
+
+#print('xd',args.render and not args.show_noise)
+
+
 """create agent"""
 agent = AgentPPO(env=env, dtype=dtype, device=device, running_state=running_state,
                  custom_reward=expert_reward, mean_action=args.render and not args.show_noise,
@@ -81,6 +85,10 @@ agent = AgentPPO(env=env, dtype=dtype, device=device, running_state=running_stat
                  policy_grad_clip=[(policy_net.parameters(), 40)], end_reward=cfg.end_reward,
                  use_mini_batch=cfg.mini_batch_size < cfg.min_batch_size, mini_batch_size=cfg.mini_batch_size)
 
+print('opt_num_epochs', agent.opt_num_epochs)
+print('mini batch', agent.use_mini_batch)
+print('mean action', agent.mean_action)
+
 
 def get_eta_str(cur_iter, total_iter, time_per_iter):
     eta = time_per_iter * (total_iter - cur_iter - 1)
@@ -90,6 +98,11 @@ def get_eta_str(cur_iter, total_iter, time_per_iter):
 def pre_iter_update(i_iter):
     cfg.update_adaptive_params(i_iter)
     agent.set_noise_rate(cfg.adp_noise_rate)
+    
+    # print('new noise rate', agent.noise_rate)
+    # print('adp log std', cfg.adp_log_std)
+    # print('cfg policy lr', cfg.adp_policy_lr)
+    
     set_optimizer_lr(optimizer_policy, cfg.adp_policy_lr)
     if cfg.fix_std:
         policy_net.action_log_std.fill_(cfg.adp_log_std)
@@ -101,11 +114,16 @@ def main_loop():
         pre_iter_update(args.iter)
         agent.sample(1e8)
     else:
+        #for i_iter in range(args.iter, 1):
         for i_iter in range(args.iter, cfg.max_iter_num):
             """generate multiple trajectories that reach the minimum batch_size"""
             pre_iter_update(i_iter)
             batch, log = agent.sample(cfg.min_batch_size)
+            
+                
+            print('batch shapes:', batch.get_shapes())
             if cfg.end_reward:
+                print('end reward lol')
                 agent.env.end_reward = log.avg_c_reward * cfg.gamma / (1 - cfg.gamma)   
 
             """update networks"""

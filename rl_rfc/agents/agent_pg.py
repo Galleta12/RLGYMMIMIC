@@ -38,6 +38,8 @@ class AgentPG(Agent):
 
     def update_params(self, batch):
         t0 = time.time()
+        
+        
         to_train(*self.update_modules)
         states = torch.from_numpy(batch.states).to(self.dtype).to(self.device)
         actions = torch.from_numpy(batch.actions).to(self.dtype).to(self.device)
