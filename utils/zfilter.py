@@ -55,9 +55,9 @@ class ZFilter:
 
         self.rs = RunningStat(shape)
 
-    def __call__(self, x, update=True):
+    def normalize(self, x, update=True):
         
-        #print('call')
+      
         if update:
             self.rs.push(x)
         if self.demean:

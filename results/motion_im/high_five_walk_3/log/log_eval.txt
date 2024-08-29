@@ -6,3 +6,4 @@
 [2024-07-05 21:54:57,693] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
 [2024-07-06 04:23:45,906] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
 [2024-07-06 05:14:17,524] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0100.p
+[2024-07-08 14:49:47,455] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p

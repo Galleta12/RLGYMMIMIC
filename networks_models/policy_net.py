@@ -17,9 +17,7 @@ class Policy(nn.Module):
         dist = self.forward(x)
         action = dist.mean_sample() if mean_action else dist.sample()
         return action
-
-        
-
+    
     def get_kl(self, x):
         dist = self.forward(x)
         return dist.kl()
@@ -39,7 +37,8 @@ class PolicyGaussian(Policy):
         self.action_mean.weight.data.mul_(0.1)
         self.action_mean.bias.data.mul_(0.0)
         self.action_log_std = nn.Parameter(torch.ones(1, action_dim) * log_std, requires_grad=not fix_std)
-
+        print("lol", self.action_log_std)
+        
     def forward(self, x):
         x = self.net(x)
         action_mean = self.action_mean(x)

@@ -51,16 +51,17 @@ class Agent:
         while logger.num_steps < min_batch_size:
             state , _ = self.env.reset()
             if self.running_state is not None:
-                state = self.running_state(state)
+                state = self.running_state.normalize(state)
             logger.start_episode(self.env)
            
 
             for t in range(10000):
                 state_var = tensor(state).unsqueeze(0)
                 trans_out = self.trans_policy(state_var)
-                mean_action = self.mean_action or self.env.np_random.binomial(1, 1 - self.noise_rate)
-               
-                #print('mean action new', mean_action)
+                #mean_action = self.mean_action or self.env.np_random.binomial(1, 1 - self.noise_rate)
+                mean_action = False
+                if mean_action == True or mean_action == 1:
+                    print('mean action new', mean_action)
                 
                 action = self.policy_net.select_action(trans_out, mean_action)[0]
                 
@@ -71,8 +72,7 @@ class Agent:
                 
                 if self.running_state is not None:
                     #print('running state')
-                    
-                    next_state = self.running_state(next_state)
+                    next_state = self.running_state.normalize(next_state)
                 # use custom or env reward
                 if self.custom_reward is not None:
                     #print('cusrom reward')

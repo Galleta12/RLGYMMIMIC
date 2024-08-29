@@ -113,9 +113,11 @@ def pre_iter_update(i_iter):
     cfg.update_adaptive_params(i_iter)
     agent.set_noise_rate(cfg.adp_noise_rate)
     
-    # print('new noise rate', agent.noise_rate)
-    # print('adp log std', cfg.adp_log_std)
-    # print('cfg policy lr', cfg.adp_policy_lr)
+    
+    print("iter num, ", i_iter)
+    print('new noise rate', agent.noise_rate)
+    print('adp log std', cfg.adp_log_std)
+    print('cfg policy lr', cfg.adp_policy_lr)
     
     set_optimizer_lr(optimizer_policy, cfg.adp_policy_lr)
     if cfg.fix_std:
@@ -128,14 +130,12 @@ def main_loop():
     #for i_iter in range(args.iter, 1):
     for i_iter in range(args.iter, cfg.max_iter_num):
         """generate multiple trajectories that reach the minimum batch_size"""
-        pre_iter_update(i_iter)
+        #pre_iter_update(i_iter)
         batch, log = agent.sample(cfg.min_batch_size)
         
             
         print('batch shapes:', batch.get_shapes())
-        if cfg.end_reward:
-            print('end reward lol')
-            agent.env.end_reward = log.avg_c_reward * cfg.gamma / (1 - cfg.gamma)   
+      
         """update networks"""
         t0 = time.time()
         agent.update_params(batch)

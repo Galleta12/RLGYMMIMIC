@@ -93,7 +93,7 @@ def data_generator():
         state,_ = env.reset()
         if running_state is not None:
             print("runni state no none")
-            state = running_state(state, update=False)
+            state = running_state.normalize(state, update=False)
         for t in range(1000):
             epos = env.get_expert_attr('qpos', env.get_expert_index(t)).copy()
             if env.expert['meta']['cyclic']:
@@ -108,7 +108,7 @@ def data_generator():
             action = policy_net.select_action(state_var, mean_action=True)[0].cpu().numpy()
             next_state, reward, done,_, _ = env.step(action)
             if running_state is not None:
-                next_state = running_state(next_state, update=False)
+                next_state = running_state.normalize(next_state, update=False)
             if done:
                 break
             state = next_state
@@ -123,18 +123,18 @@ def data_generator():
 
 
 def visualize_dynamics():
-    state = env.reset()
+    state, _ = env.reset()
     if running_state is not None:
         print("runni state no none")
-        state = running_state(state, update=False)
+        state = running_state.normalize(state, update=False)
     for t in range(4000):
         #print(t)
         state_var = tensor(state, dtype=dtype).unsqueeze(0)
         action = policy_net.select_action(state_var, mean_action=True)[0].cpu().numpy()
-        next_state, reward, done, _ = env.step(action)
+        next_state, reward, done, _,_ = env.step(action)
         env.render()
         if running_state is not None:
-            next_state = running_state(next_state, update=False)
+            next_state = running_state.normalize(next_state, update=False)
         if done:
             #print('done')
             env.reset()
