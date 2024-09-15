@@ -10,7 +10,7 @@ class TrajBatch:
         self.batch = zip(*memory.sample())
         self.states = np.stack(next(self.batch))
         self.actions = np.stack(next(self.batch))
-        self.masks = np.stack(next(self.batch))
+        self.terminates = np.stack(next(self.batch))
         self.next_states = np.stack(next(self.batch))
         self.rewards = np.stack(next(self.batch))
         self.exps = np.stack(next(self.batch))
@@ -18,7 +18,7 @@ class TrajBatch:
         return {
             'states': self.states.shape,
             'actions': self.actions.shape,
-            'masks': self.masks.shape,
+            'terminates': self.terminates.shape,
             'next_states': self.next_states.shape,
             'rewards': self.rewards.shape,
             'exps': self.exps.shape

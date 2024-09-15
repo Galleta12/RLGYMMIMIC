@@ -82,9 +82,9 @@ class Agent:
                 # logging
                 logger.step(self.env, env_reward, c_reward, c_info, info)
 
-                mask = 0 if done else 1
+                terminated = 0 if done else 1
                 exp = 1 - mean_action
-                self.push_memory(memory, state, action, mask, next_state, reward, exp)
+                self.push_memory(memory, state, action, terminated, next_state, reward, exp)
 
                 if pid == 0 and self.render:
                     self.env.render()
@@ -105,8 +105,8 @@ class Agent:
             return memory, logger
 
 
-    def push_memory(self, memory, state, action, mask, next_state, reward, exp):
-        memory.push(state, action, mask, next_state, reward, exp)
+    def push_memory(self, memory, state, action, terminated, next_state, reward, exp):
+        memory.push(state, action, terminated, next_state, reward, exp)
 
 
     def sample(self, min_batch_size):

@@ -34,7 +34,7 @@ class Config:
 
         # training config
         self.gamma = cfg.get('gamma', 0.95)
-        self.tau = cfg.get('tau', 0.95)
+        self.gae_lambda = cfg.get('tau', 0.95)
         self.policy_htype = cfg.get('policy_htype', 'relu')
         self.policy_hsize = cfg.get('policy_hsize', [300, 200])
         self.policy_optimizer = cfg.get('policy_optimizer', 'Adam')

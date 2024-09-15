@@ -1,13 +1,4 @@
-[2024-07-04 20:14:39,789] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0100.p
-[2024-07-04 20:15:27,003] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
-[2024-07-05 10:22:42,999] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
-[2024-07-05 10:55:18,941] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
-[2024-07-05 11:40:11,671] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
-[2024-07-05 21:54:57,693] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
-[2024-07-06 04:23:45,906] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
-[2024-07-06 05:14:17,524] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0100.p
-[2024-07-08 14:49:47,455] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
-[2024-08-29 23:18:21,173] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
-[2024-08-29 23:19:54,033] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
-[2024-08-29 23:20:46,501] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
-[2024-08-29 23:23:46,575] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
+[2024-09-15 03:29:45,592] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_-001.p
+[2024-09-15 03:30:04,135] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
+[2024-09-15 03:30:36,161] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p
+[2024-09-15 03:31:37,301] loading model from checkpoint: results/motion_im/high_five_walk_3/models/iter_0200.p

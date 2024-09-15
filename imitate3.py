@@ -95,7 +95,7 @@ agent = PPO(env=env, dtype=dtype, device=device, running_state=running_state,
                  render=args.render, num_threads=args.num_threads,
                  policy_net=policy_net, value_net=value_net,
                  optimizer_policy=optimizer_policy, optimizer_value=optimizer_value, opt_num_epochs=cfg.num_optim_epoch,
-                 gamma=cfg.gamma, tau=cfg.tau, clip_epsilon=cfg.clip_epsilon,
+                 gamma=cfg.gamma, gae_lambda=cfg.gae_lambda, clip_epsilon=cfg.clip_epsilon,
                  policy_grad_clip=[(policy_net.parameters(), 40)], end_reward=cfg.end_reward,
                  use_mini_batch=cfg.mini_batch_size < cfg.min_batch_size, mini_batch_size=cfg.mini_batch_size)
 

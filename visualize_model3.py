@@ -81,7 +81,7 @@ model_cp = pickle.load(open(cp_path, "rb"))
 policy_net.load_state_dict(model_cp['policy_dict'])
 value_net.load_state_dict(model_cp['value_dict'])
 running_state = model_cp['running_state']
-
+print(running_state)
 
 #num_fr = 0
 
