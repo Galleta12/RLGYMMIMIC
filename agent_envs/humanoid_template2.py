@@ -39,7 +39,7 @@ class HumanoidBase(MujocoEnv,EzPickle):
 
     def __init__(self, cfg, 
                  frame_skip: int = 15,   
-                 default_camera_config: Dict[str, Union[float, int]] = DEFAULT_CAMERA_CONFIG,**kwargs):
+                 default_camera_config: Dict[str, Union[float, int]] = DEFAULT_CAMERA_CONFIG,isExpert=True,**kwargs):
         
 
         print("this is the model_path",cfg.mujoco_model_file)
@@ -56,7 +56,7 @@ class HumanoidBase(MujocoEnv,EzPickle):
                            default_camera_config,
                           **kwargs)
         
-        
+        self.isExpert = isExpert
         
         self.cfg = cfg
         
@@ -72,7 +72,8 @@ class HumanoidBase(MujocoEnv,EzPickle):
         self.bquat = self.get_body_quat()
         self.prev_bquat = None
         self.expert = None
-        self.load_expert()
+        if self.isExpert:
+            self.load_expert()
         self.set_spaces()
     
     def set_body_names(self):
@@ -119,8 +120,7 @@ class HumanoidBase(MujocoEnv,EzPickle):
             qvel[:3] = transform_vec(qvel[:3], hq).ravel()
             
         obs = []
-
-
+        #just use the z coordinate
         obs.append(qpos[2:])
             
         obs.append(qvel)
@@ -218,17 +218,19 @@ class HumanoidBase(MujocoEnv,EzPickle):
 
     
     def update_expert(self):
-        expert = self.expert
-        if expert['meta']['cyclic']:
-            #print('Meta cyclic')
-            if self.cur_t == 0:
-                expert['cycle_relheading'] = np.array([1, 0, 0, 0])
-                expert['cycle_pos'] = expert['init_pos'].copy()
-            elif self.get_expert_index(self.cur_t) == 0:
-                expert['cycle_relheading'] = quat_mul(get_heading_q(self.data.qpos[3:7]),
-                                                              quat_inverse_no_norm(expert['init_heading']))
-                expert['cycle_pos'] = np.concatenate((self.data.qpos[:2], expert['init_pos'][[2]]))
-    
+        
+        if self.expert:
+            expert = self.expert
+            if expert['meta']['cyclic']:
+                #print('Meta cyclic')
+                if self.cur_t == 0:
+                    expert['cycle_relheading'] = np.array([1, 0, 0, 0])
+                    expert['cycle_pos'] = expert['init_pos'].copy()
+                elif self.get_expert_index(self.cur_t) == 0:
+                    expert['cycle_relheading'] = quat_mul(get_heading_q(self.data.qpos[3:7]),
+                                                                quat_inverse_no_norm(expert['init_heading']))
+                    expert['cycle_pos'] = np.concatenate((self.data.qpos[:2], expert['init_pos'][[2]]))
+        
     def get_phase(self):
         ind = self.get_expert_index(self.cur_t)
         return ind / self.expert['len']

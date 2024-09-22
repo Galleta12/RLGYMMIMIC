@@ -15,7 +15,9 @@ def get_expert(expert_qpos, expert_meta,env):
 
     expert = {'qpos': expert_qpos, 'meta': expert_meta}
     feat_keys = {'qvel', 'rlinv', 'rlinv_local', 'rangv', 'rq_rmh',
-                 'com', 'head_pos', 'ee_pos', 'ee_wpos', 'bquat', 'bangvel'}
+                 'com', 'head_pos', 'ee_pos', 'ee_wpos', 'bquat', 'bangvel',
+                 'linear_local_root_amp,linear_angular_root_amp,local_rotation_amp,local_vel_amp',
+                 'local_ee_pos_amp'}
     for key in feat_keys:
         expert[key] = []
 
@@ -35,7 +37,7 @@ def get_expert(expert_qpos, expert_meta,env):
             head_pos = env.get_body_com('head').copy()
         else:
             head_pos = env.get_body_com('neck').copy()
-            
+        #calculated after the first frame  
         if i > 0:
             prev_qpos = expert_qpos[i - 1]
             qvel = get_qvel_fd_new(prev_qpos, qpos, env.dt)
@@ -60,12 +62,28 @@ def get_expert(expert_qpos, expert_meta,env):
         expert['com'].append(com)
         expert['head_pos'].append(head_pos)
         expert['rq_rmh'].append(rq_rmh)
+        
+        
 
     expert['qvel'].insert(0, expert['qvel'][0].copy())
     expert['rlinv'].insert(0, expert['rlinv'][0].copy())
     expert['rlinv_local'].insert(0, expert['rlinv_local'][0].copy())
     expert['rangv'].insert(0, expert['rangv'][0].copy())
 
+    #for the amp obs features
+    for i in range(expert_qpos.shape[0]):
+        qpos = expert_qpos[i]
+        qvel = expert['qvel'][i,:]
+        # AMP-Specific Features
+        amp_obs = amp_obs_feature(env, expert, qpos, qvel)
+        expert['linear_local_root_amp'].append(amp_obs['root_linear_velocity'])
+        expert['linear_angular_root_amp'].append(amp_obs['root_angular_velocity'])
+        expert['local_rotation_amp'].append(amp_obs['local_joint_rotations'])
+        expert['local_vel_amp'].append(amp_obs['local_joint_velocities'])
+        expert['local_ee_pos_amp'].append(amp_obs['end_effector_positions'])
+        
+    
+    
     # Get expert body quaternions
     for i in range(1, expert_qpos.shape[0]):
         bangvel = get_angvel_fd(expert['bquat'][i - 1], expert['bquat'][i], env.dt)
@@ -87,6 +105,38 @@ def get_expert(expert_qpos, expert_meta,env):
     mj.mj_forward(env.model, env.data)
     
     return expert
+
+
+
+def amp_obs_feature(env,expert,qpos,qvel):
+    # Extract root velocities (linear and angular)
+    root_linear_velocity = qvel[:3]
+    root_angular_velocity = qvel[3:6]
+    
+    # Transform root velocities to the character's local coordinate frame
+    # Linear velocity to local coordinates using the root quaternion (global to local)
+    root_linear_velocity = transform_vec(root_linear_velocity[:3], qpos[3:7]).ravel()
+    # Angular velocity to heading coordinates using the heading quaternion
+    hq = get_heading_q(qpos[3:7])
+    root_angular_velocity = transform_vec(root_angular_velocity, hq).ravel()
+    
+    # Extract local rotations and velocities of each joint
+    local_joint_rotations = qpos[7:]  # Joint rotations
+    local_joint_velocities = qvel[6:]  # Joint velocities
+
+    # Get end-effector positions
+    end_effector_positions = env.get_ee_pos(transform='root')
+
+    obs_features = {
+        'root_linear_velocity': root_linear_velocity,
+        'root_angular_velocity': root_angular_velocity,
+        'local_joint_rotations': local_joint_rotations,
+        'local_joint_velocities': local_joint_velocities,
+        'end_effector_positions': end_effector_positions
+    }
+
+    return obs_features
+    
 
 
 
