@@ -16,7 +16,7 @@ def get_expert(expert_qpos, expert_meta,env):
     expert = {'qpos': expert_qpos, 'meta': expert_meta}
     feat_keys = {'qvel', 'rlinv', 'rlinv_local', 'rangv', 'rq_rmh',
                  'com', 'head_pos', 'ee_pos', 'ee_wpos', 'bquat', 'bangvel',
-                 'linear_local_root_amp,linear_angular_root_amp,local_rotation_amp,local_vel_amp',
+                 'linear_local_root_amp','linear_angular_root_amp','local_rotation_amp','local_vel_amp',
                  'local_ee_pos_amp'}
     for key in feat_keys:
         expert[key] = []
@@ -73,7 +73,7 @@ def get_expert(expert_qpos, expert_meta,env):
     #for the amp obs features
     for i in range(expert_qpos.shape[0]):
         qpos = expert_qpos[i]
-        qvel = expert['qvel'][i,:]
+        qvel = expert['qvel'][i]
         # AMP-Specific Features
         amp_obs = amp_obs_feature(env, expert, qpos, qvel)
         expert['linear_local_root_amp'].append(amp_obs['root_linear_velocity'])

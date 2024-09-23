@@ -51,5 +51,21 @@ tb_logger = SummaryWriter(cfg.tb_dir) if not args.render else None
 logger = create_logger(os.path.join(cfg.log_dir, 'log.txt'), file_handle=not args.render)
 """environment"""
 env = HumanoidTemplate(cfg,isExpert=False)
+#env = HumanoidTemplate(cfg,isExpert=False,render_mode = 'human')
 env.seed(cfg.seed)
 
+# def visualize():
+#     obs= env.reset()
+    
+#     for i in range(2000):
+#         #random action
+#         action = env.action_space.sample()    
+#         observation, reward,done,_, info = env.step(action)
+#         env.render()
+#         if done:
+#             print('done')
+#             #break
+#             obs= env.reset()
+
+
+# visualize()

@@ -38,9 +38,9 @@ class HumanoidTemplate(HumanoidBase):
         # Call the parent class constructor
         super().__init__(cfg, frame_skip, default_camera_config, **kwargs)
         
-        
-        
+         
         self.ampDataset = AMPDataset(self)
+        self.time_horizon = 200
         
         
         
@@ -84,47 +84,64 @@ class HumanoidTemplate(HumanoidBase):
         self.prev_bquat = self.bquat.copy()
         #self.do_simulation(a, self.frame_skip)
         
-        #index for the expert add
+        #this is to keep track of how many steps are done
+        #and it is reseted on the main reset function.
         self.cur_t += 1
-        print("index expert", self.cur_t)
-        t = self.get_expert_index(self.cur_t)
-        print('t', t)
-        self.data.qpos[:] = self.get_expert_attr('qpos', t).copy()
+        #print("step index", self.cur_t)
+        
+
+        
+        self.data.qpos[:],self.data.qvel[:] = self.random_sample()
         
         mj.mj_forward(self.model, self.data)
-        self.update_expert()
         
         self.bquat = self.get_body_quat()
-        
-        
+            
         reward = 1.0
 
         
-        fail = self.data.qpos[2] < self.expert['height_lb'] - 0.1
-        cyclic = self.expert['meta']['cyclic']
-        end =  (cyclic and self.cur_t >= cfg.env_episode_len) or (not cyclic and self.cur_t + self.start_ind >= self.expert['len'])
+        fail = self.data.qpos[2] < self.ampDataset.height_lb - 0.1
         
-        #done = fail or end
-        done = end
+        end =   ( self.cur_t >= self.time_horizon)
+        
+        done = fail or end
+        #done = end
         
         obs = self.get_obs()
-        return obs, reward, done, {'fail': fail, 'end': end}
+        return obs, reward, done, False,{'fail': fail, 'end': end}
     
     
     
-    
+    def random_sample(self):
+        clip = self.ampDataset.sample_clip()
+        clip_name = clip['clip_name']
+        clip_expert = clip['expert'] 
+        qpos =  clip_expert['qpos']
+        qvel = clip_expert['qvel']
+            
+        # Sample an index from the chosen clip
+        idx = np.random.randint(clip_expert['len'])
+        
+        init_pose = qpos[idx]
+        init_vel = qvel[idx]
+        
+        # print('reset', clip_name)
+        # print('reset len', clip_expert['len'])
+        # print('reset idx', idx)
+        
+        
+        return init_pose,init_vel
     
     
     
     def reset_model(self):
         cfg = self.cfg
       
-        #ind = 0 if self.cfg.env_start_first else self.np_random.randint(self.expert['len'])
-
-        _,_,_,qpos,qvel = self.ampDataset.sample_state_next_state()
+        #sample a random amp dataset reference
         
-        init_pose = qpos.copy()
-        init_vel = qvel.copy()
+        init_pose,init_vel = self.random_sample()
+        
+        print('reset')
         init_pose[7:] += self.np_random.normal(loc=0.0, scale=cfg.env_init_noise, size=self.model.nq - 7)
         self.set_state(init_pose, init_vel)
         self.bquat = self.get_body_quat()
