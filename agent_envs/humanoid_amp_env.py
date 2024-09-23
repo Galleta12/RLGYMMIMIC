@@ -40,7 +40,7 @@ class HumanoidTemplate(HumanoidBase):
         
          
         self.ampDataset = AMPDataset(self)
-        self.time_horizon = 200
+        self.time_horizon = 1000
         
         
         
@@ -109,6 +109,12 @@ class HumanoidTemplate(HumanoidBase):
         
         obs = self.get_obs()
         return obs, reward, done, False,{'fail': fail, 'end': end}
+    
+    
+    
+    def get_amp_features(self):
+        pass
+    
     
     
     
