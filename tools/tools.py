@@ -73,9 +73,7 @@ def get_expert(expert_qpos, expert_meta,env):
     #for the amp obs features
     for i in range(expert_qpos.shape[0]):
         qpos = expert_qpos[i]
-        print('qpos', len(qpos))
         qvel = expert['qvel'][i]
-        print('qvel', len(qvel))
         # AMP-Specific Features
         amp_obs = amp_obs_feature(env, expert, qpos, qvel)
         expert['linear_local_root_amp'].append(amp_obs['root_linear_velocity'])

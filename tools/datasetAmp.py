@@ -98,6 +98,8 @@ class AMPDataset:
                 'local_joint_rotations': expert['local_rotation_amp'][i],
                 'local_joint_velocities': expert['local_vel_amp'][i],
                 'end_effector_positions': expert['local_ee_pos_amp'][i],
+                'original_qpos': expert['qpos'][i],
+                'original_qvel': expert['qvel'][i]
             }
             
             next_features = {
@@ -106,6 +108,8 @@ class AMPDataset:
                 'local_joint_rotations': expert['local_rotation_amp'][i + 1],
                 'local_joint_velocities': expert['local_vel_amp'][i + 1],
                 'end_effector_positions': expert['local_ee_pos_amp'][i + 1],
+                'original_qpos': expert['qpos'][i],
+                'original_qvel': expert['qvel'][i]
             }
             
             preloaded_states.append(current_features)
@@ -118,6 +122,8 @@ class AMPDataset:
             'local_joint_rotations': expert['local_rotation_amp'][-1],
             'local_joint_velocities': expert['local_vel_amp'][-1],
             'end_effector_positions': expert['local_ee_pos_amp'][-1],
+            'original_qpos': expert['qpos'][-1],
+            'original_qvel': expert['qvel'][-1]
         }
         preloaded_states.append(last_state_features)
         preloaded_next_states.append(last_state_features)
@@ -150,9 +156,9 @@ class AMPDataset:
             states_batch.append(preloaded_states[idx])
             next_states_batch.append(preloaded_next_states[idx])
         
-        # Return the batches as lists of dictionaries
         return states_batch, next_states_batch
-
+        
+    
     def _get_normalized_weights(self) -> List[float]:
         """Returns normalized weights for clip selection."""
         total_weight = sum(self.clip_weights)

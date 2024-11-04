@@ -1,9 +1,8 @@
 import numpy as np
 import math
 from some_math.math_utils import *
-from agent_envs.humanoid_env import HumanoidBase
 
-def world_rfc_implicit_reward(env:HumanoidBase, state, action, info):
+def world_rfc_implicit_reward(env, state, action, info):
     # reward coefficients
     cfg = env.cfg
     ws = cfg.reward_weights
@@ -75,7 +74,7 @@ def world_rfc_implicit_reward(env:HumanoidBase, state, action, info):
     #return reward, reward_info
 
 
-def world_reward(env:HumanoidBase, state, action, info):
+def world_reward(env, state, action, info):
     # reward coefficients
     #print("world reward")
     cfg = env.cfg
@@ -267,8 +266,23 @@ def world_rfc_implicit_reward_gym(env,  action):
 
 
 
+def reward_direction(env,state, action, info):
+    
+    # Retrieve target direction (d*) and speed (v*) from environment or config
+    d_star = env.target_direction_local 
+    v_star = env.target_speed      
+    
+    x_com_velocity = env.get_com_velocity()
+    
+    # Project COM velocity onto target direction (d*)
+    projected_velocity = np.dot(d_star, x_com_velocity)  # d* · ẋ_com
 
+    # Compute the reward as per the given formula
+    reward = math.exp(-0.25 * ((v_star - projected_velocity) ** 2))
 
+    w_g = 0.5
+    
+    return w_g * reward, np.array([w_g * reward])
 
 
 
@@ -278,5 +292,6 @@ def world_rfc_implicit_reward_gym(env,  action):
 reward_func = { 
     'world_rfc_implicit': world_rfc_implicit_reward,
     'local_rfc_implicit': local_rfc_implicit_reward,
-    'world_reward': world_reward
+    'world_reward': world_reward,
+    'reward_direction': reward_direction
 }

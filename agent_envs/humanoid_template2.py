@@ -97,12 +97,27 @@ class HumanoidBase(MujocoEnv,EzPickle):
     
         self.action_dim = self.ndof + self.vf_dim
         self.action_space = gym.spaces.Box(low=-np.ones(self.action_dim), high=np.ones(self.action_dim), dtype=np.float32)
-        self.obs_dim = self.get_obs().size
+        if cfg.reward_id == "reward_direction":
+            #xyz direction, scalar value of velocity
+            #self.obs_dim = self.get_obs().size + 4
+            #for now
+            self.obs_dim = 79
+            
+            
+            
+        else:
+            self.obs_dim = self.get_obs().size
+            
+        
+        #print('obs size', self.obs_dim)
+        
         high = np.inf * np.ones(self.obs_dim)
         low = -high
         self.observation_space = gym.spaces.Box(low, high, dtype=np.float32)
     
     def get_obs(self):
+        
+        
         
         obs = self.get_full_obs()
         return obs
@@ -129,6 +144,7 @@ class HumanoidBase(MujocoEnv,EzPickle):
             
             phase = self.get_phase()
             obs.append(np.array([phase]))
+        
         obs = np.concatenate(obs)
         return obs
     

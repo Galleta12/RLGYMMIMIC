@@ -1,0 +1,13 @@
+[2024-11-01 09:33:32,020] 0	T_sample 97.04	T_update 21.91	ETA 1 day, 9:00:37	expert_R_avg 0.4860 [0.1081]	expert_R_range (0.3732, 0.7715)	eps_len 9.15
+[2024-11-01 09:35:43,386] 1	T_sample 109.56	T_update 20.92	ETA 1 day, 12:10:18	expert_R_avg 0.1502 [0.1041]	expert_R_range (0.0010, 0.6411)	eps_len 9.24
+[2024-11-01 09:37:57,994] 2	T_sample 112.74	T_update 21.01	ETA 1 day, 13:02:34	expert_R_avg 0.1439 [0.1044]	expert_R_range (0.0010, 0.6539)	eps_len 9.31
+[2024-11-01 09:40:02,964] 3	T_sample 102.99	T_update 21.12	ETA 1 day, 10:20:16	expert_R_avg 0.1507 [0.1079]	expert_R_range (0.0010, 0.6629)	eps_len 9.36
+[2024-11-01 09:42:03,882] 4	T_sample 99.23	T_update 20.83	ETA 1 day, 9:11:01	expert_R_avg 0.1464 [0.1080]	expert_R_range (0.0010, 0.6599)	eps_len 9.43
+[2024-11-01 09:44:15,376] 5	T_sample 109.50	T_update 21.13	ETA 1 day, 12:04:06	expert_R_avg 0.1494 [0.1075]	expert_R_range (0.0010, 0.6542)	eps_len 9.51
+[2024-11-01 09:46:16,204] 6	T_sample 98.79	T_update 21.17	ETA 1 day, 9:05:23	expert_R_avg 0.1421 [0.1087]	expert_R_range (0.0010, 0.6365)	eps_len 9.59
+[2024-11-01 09:48:24,882] 7	T_sample 106.60	T_update 21.17	ETA 1 day, 11:12:32	expert_R_avg 0.1405 [0.1061]	expert_R_range (0.0010, 0.6749)	eps_len 9.64
+[2024-11-01 09:50:23,351] 8	T_sample 96.38	T_update 21.23	ETA 1 day, 8:22:34	expert_R_avg 0.1383 [0.1062]	expert_R_range (0.0010, 0.6757)	eps_len 9.69
+[2024-11-01 09:52:30,978] 9	T_sample 105.49	T_update 21.27	ETA 1 day, 10:51:34	expert_R_avg 0.1442 [0.1067]	expert_R_range (0.0010, 0.6823)	eps_len 9.67
+[2024-11-01 09:54:30,197] 10	T_sample 97.33	T_update 21.02	ETA 1 day, 8:30:47	expert_R_avg 0.1435 [0.1066]	expert_R_range (0.0010, 0.6549)	eps_len 9.72
+[2024-11-01 09:56:39,023] 11	T_sample 106.62	T_update 21.34	ETA 1 day, 11:07:02	expert_R_avg 0.1396 [0.1071]	expert_R_range (0.0010, 0.6270)	eps_len 9.75
+[2024-11-03 17:55:56,140] 0	T_sample 14.51	T_update 20.99	ETA 9:51:12	expert_R_avg 0.1064 [0.1064]	expert_R_range (0.0010, 0.3893)	eps_len 9.15

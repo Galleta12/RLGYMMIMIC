@@ -86,6 +86,7 @@ class Config:
         self.obs_phase = cfg.get('obs_phase', True)
         self.obs_heading = cfg.get('obs_heading', False)
         self.obs_vel = cfg.get('obs_vel', 'full')
+        self.obs_direction = cfg.get('obs_direction', False)
         self.root_deheading = cfg.get('root_deheading', False)
         self.action_type = cfg.get('action_type', 'position')
         

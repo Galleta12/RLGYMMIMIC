@@ -19,6 +19,7 @@ class to_cpu:
         self.models = list(filter(lambda x: x is not None, models))
         self.prev_devices = [x.device if hasattr(x, 'device') else next(x.parameters()).device for x in self.models]
         for x in self.models:
+        
             x.to(torch.device('cpu'))
 
     def __enter__(self):

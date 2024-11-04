@@ -8,3 +8,4 @@
 [2024-06-28 22:00:50,132] loading model from checkpoint: results/motion_im/050100_test/models/iter_0200.p
 [2024-06-29 08:59:11,970] loading model from checkpoint: results/motion_im/050100_test/models/iter_0200.p
 [2024-07-01 21:25:23,049] loading model from checkpoint: results/motion_im/050100_test/models/iter_0200.p
+[2024-09-24 01:59:32,306] loading model from checkpoint: results/motion_im/050100_test/models/iter_0200.p

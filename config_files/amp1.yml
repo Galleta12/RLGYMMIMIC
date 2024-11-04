@@ -25,7 +25,7 @@ fix_std: true
 max_iter_num: 1000
 seed: 1
 save_model_interval: 100
-reward_id: 'world_reward'
+reward_id: 'reward_direction'
 reward_weights:
   w_p: 0.3
   w_v: 0.1
@@ -43,6 +43,7 @@ env_episode_len: 200
 env_term_body: 'root'
 obs_coord: 'root'
 obs_phase: false
+
 
 # RFC parameters
 residual_force: false
