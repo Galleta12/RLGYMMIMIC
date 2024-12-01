@@ -21,7 +21,7 @@ from some_math.transformation import quaternion_from_euler
 from common.mujoco_envs import MujocoEnv
 from agent_envs.pd_controllers import stable_pd_controller
 from agent_envs.humanoid_template2 import HumanoidBase
-from reward_function import world_rfc_implicit_reward
+from reward_function import reward_direction
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -40,12 +40,16 @@ class HumanoidTemplate(HumanoidBase):
         
          
         self.ampDataset = AMPDataset(self)
-        self.time_horizon = 10
+        #self.time_horizon = 500
+        self.time_horizon = 100
         self.amp_features_size = self.get_amp_size() 
         
         
         self.target_speed = np.random.uniform(1, 5)
+        
         self.target_direction = self.set_random_direction()
+        #self.target_direction =  np.array([-1.0,-1.0,0.0])
+        
         self.target_direction_local = self.convert_to_local(self.target_direction)
     
     def set_random_direction(self):
@@ -94,6 +98,9 @@ class HumanoidTemplate(HumanoidBase):
                 if cfg.residual_force_mode == 'implicit':
                     self.rfc_implicit(vf)
             mj.mj_step(self.model, self.data)
+            
+            # Update COM velocity using mj_subtreeVel after each step
+            mj.mj_subtreeVel(self.model, self.data)
 
     
     def step(self, a):
@@ -109,7 +116,7 @@ class HumanoidTemplate(HumanoidBase):
         #this is to keep track of how many steps are done
         #and it is reseted on the main reset function.
         self.cur_t += 1
-        #print('current step', self.cur_t)
+        print('current step', self.cur_t)
         
         # Update target speed every 50 steps
         # if self.cur_t % 50 == 0:
@@ -131,14 +138,19 @@ class HumanoidTemplate(HumanoidBase):
         #print("step index", self.cur_t)
         
 
-        
+        print('agent vel', self.data.qvel[:3])
+        print('agent vel com ', self.data.subtree_linvel)
+
         #self.data.qpos[:],self.data.qvel[:] = amp_state[0]['original_qpos'], amp_state[0]["original_qvel"]
         
         #mj.mj_forward(self.model, self.data)
         
             
-        reward = 1.0
-
+        reward,_ = reward_direction(self,None,None,None)
+        
+        #reward for testing purposes
+        
+        print('rewards', reward)
         
         fail = self.data.qpos[2] < self.ampDataset.height_lb - 0.1
         
@@ -276,8 +288,12 @@ class HumanoidTemplate(HumanoidBase):
         cfg = self.cfg
 
         self.target_speed = np.random.uniform(1, 5)
-        #self.target_direction = self.set_random_direction()
+        self.target_direction = np.array([-1.0,-1.0,0.0])
         #sample a random amp dataset reference
+        print('target spped', self.target_speed)
+        print('target direction local', self.target_direction_local)
+        print('target direction', self.target_direction)
+        
         
         init_pose,init_vel = self.random_sample()
         

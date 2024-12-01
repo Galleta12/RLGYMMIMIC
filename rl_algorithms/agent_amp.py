@@ -56,7 +56,7 @@ class AgentAMP:
         #print('batch shize', min_batch_size)
         while logger.num_steps < min_batch_size:
             
-            print('logger', logger.num_steps)
+            #print('logger', logger.num_steps)
             state , _ = self.env.reset()
             #print('state shape', state.shape)
             amp_feature = self.env.get_initial_amp_features()
@@ -99,7 +99,10 @@ class AgentAMP:
                     
                     task_reward, c_info = self.custom_reward(self.env, state, action, info)
                     
-                    c_reward,disc_output = self.discriminator.predict_reward(tensor(amp_feature),tensor(next_amp_features),task_reward)
+                    c_reward,disc_output,style_reward = self.discriminator.predict_reward(tensor(amp_feature),tensor(next_amp_features),task_reward)
+                    
+                    c_info = np.append(c_info,style_reward)
+                    
                     reward = c_reward.numpy()
                     
                

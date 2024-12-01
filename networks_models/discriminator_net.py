@@ -48,19 +48,29 @@ class Discriminator(nn.Module):
             #self.train()  # Return to train mode
         
         
-        return total_reward.squeeze(), d
+        return total_reward.squeeze(), d, style_reward
         #return d, d
 
     #gradient penaltiy cofficient 10 following amp paper
     def compute_grad_penalty(self, amp_state, amp_next_state, lambda_=10,device=None):
         # Concatenate expert and agent states, and enable gradient computation
-        mixed_data = torch.cat([amp_state, amp_next_state], dim=-1).requires_grad_(True)
-        d = self.forward(mixed_data)
+        
+        
+        amp_state, amp_next_state = amp_state.to(device), amp_next_state.to(device)
+        
+     
+        
+        
+        
+        mixed_data = torch.cat([amp_state, amp_next_state], dim=-1).requires_grad_(True).to(device)
+
+        # Forward pass
+        d = self.forward(mixed_data).to(device)
+
         ones = torch.ones(d.size(), device=device)
 
         # Compute gradients
         grad = autograd.grad(outputs=d, inputs=mixed_data, grad_outputs=ones, create_graph=True, retain_graph=True, only_inputs=True)[0]
-        
         # Gradient penalty term
         grad_penalty = (lambda_*0.5) * (grad.norm(2, dim=1) - 0).pow(2).mean()
         return grad_penalty

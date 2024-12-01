@@ -284,6 +284,32 @@ def reward_direction(env,state, action, info):
     
     return w_g * reward, np.array([w_g * reward])
 
+def reward_location(env, state, action, info):
+    # Retrieve the target position (x*) in the global frame 
+    x_star_global = env.get_target_position() # Target position in global coordinates
+    x_root_t_global = env.data.qpos[:3]  # Agent's root position in global coordinates
+
+    # Compute d* as a unit vector pointing from the agent's root position to the target
+    direction_to_target = x_star_global[:2] - x_root_t_global[:2]  # Only consider horizontal plane [x, y]
+    distance_to_target = np.linalg.norm(direction_to_target)
+    d_star = direction_to_target / (distance_to_target + 1e-8)  # Normalize and prevent division by zero
+
+    # Calculate the first term (distance-based reward)
+    distance_reward = 0.7 * math.exp(-0.5 * (distance_to_target ** 2))
+
+    # Calculate the second term (velocity-based reward)
+    v_star = 1.0  # Minimum target speed threshold
+    x_com_velocity = env.get_com_velocity()[:2]  # COM velocity in the horizontal plane [x, y]
+    projected_velocity = np.dot(d_star, x_com_velocity)  # Project COM velocity onto d_star direction
+    velocity_reward = 0.3 * math.exp(-((max(0, v_star - projected_velocity)) ** 2))
+
+    # Overall reward
+    reward = distance_reward + velocity_reward
+
+    w_g = 0.5
+    
+    #print('rewards', distance_reward,'vel', velocity_reward)
+    return reward*w_g, np.array([distance_reward, velocity_reward])
 
 
 
@@ -293,5 +319,6 @@ reward_func = {
     'world_rfc_implicit': world_rfc_implicit_reward,
     'local_rfc_implicit': local_rfc_implicit_reward,
     'world_reward': world_reward,
-    'reward_direction': reward_direction
+    'reward_direction': reward_direction,
+    'reward_location': reward_location,
 }

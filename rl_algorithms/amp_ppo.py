@@ -115,10 +115,10 @@ class AmpAlg(AgentAMP):
                     
                     # Compute gradient penalty for the discriminator
                     grad_penalty = self.discriminator.compute_grad_penalty(amp_states_b, amp_next_states_b, 10,self.device)
+                    #print("grad penalty", grad_penalty.device)
+                    #total_amp_loss = amp_loss+ grad_penalty
                     
-                    total_amp_loss = amp_loss+ grad_penalty
-                    
-                    self.update_networks(critic_loss,surr_loss,entropy_regularization,total_amp_loss)
+                    self.update_networks(critic_loss,surr_loss,entropy_regularization,amp_loss,grad_penalty)
                     
                     
             else:
@@ -127,52 +127,52 @@ class AmpAlg(AgentAMP):
 
     
     
-    def update_networks(self,critic_loss,surr_loss,entropy_regularization,total_amp_loss):
+    def update_networks(self,critic_loss,surr_loss,entropy_regularization,amp_loss,grad_penalty):
         #minimize the policy loss and the value loss and max the entropy
         #entropy is the measure of chaos on an action probablity distribuion, in theory maximize entropy encourage agent to explore more
         #this is the total loss function
-        total_loss = surr_loss - entropy_regularization + (self.value_loss_coef*critic_loss) + total_amp_loss
+        
+        
+        
+        
+        # print("critic_loss device:", critic_loss.device)
+        # print("surr_loss device:", surr_loss.device)
+        # print("entropy_regularization device:", entropy_regularization.device)
+        # print("total_amp_loss device:", total_amp_loss.device)
+        
+        
+        
+        total_loss = surr_loss - entropy_regularization + (self.value_loss_coef*critic_loss) + amp_loss +grad_penalty
+        #print("total_loss device:", total_loss.device)
         #be sure that we dont accumulate the gradient on each iter
         #so it is clear the gradient of the prev batch
+        
+        #print('zero grads')
         self.optimizer_value.zero_grad()
         self.optimizer_policy.zero_grad()
         self.optimizer_disc.zero_grad()
         #backpropagation
         total_loss.backward()
+        #print('backward')
         
-        print('value')
+        
+        self.clip_policy_grad()
+        
+        
+        #print('value')
         self.optimizer_value.step()
-        print('value done')
+        #print('value done')
         
         # critic_loss.backward()
         #update the parameters based on the gradient
     
         #surr_loss.backward()
         #clip policy gradient
-        self.clip_policy_grad()
         #update it
         self.optimizer_policy.step()
         self.optimizer_disc.step()
     
-    
-    def update_networks_separete(self,critic_loss,surr_loss,entropy_regularization):
-        
-        self.optimizer_value.zero_grad()
-        
-        
-        critic_loss.backward()
-        
-        
-        
-        self.optimizer_policy.zero_grad()
-      
-        
-        #surr_loss.backward()
-        #clip policy gradient
-        self.clip_policy_grad()
-        #update it
-        self.optimizer_policy.step()
-        
+
     
     
     

@@ -97,15 +97,18 @@ class HumanoidBase(MujocoEnv,EzPickle):
     
         self.action_dim = self.ndof + self.vf_dim
         self.action_space = gym.spaces.Box(low=-np.ones(self.action_dim), high=np.ones(self.action_dim), dtype=np.float32)
+        
+        
         if cfg.reward_id == "reward_direction":
             #xyz direction, scalar value of velocity
             #self.obs_dim = self.get_obs().size + 4
             #for now
-            self.obs_dim = 79
+            self.obs_dim = 79    
+        elif  cfg.reward_id == "reward_location":
             
-            
-            
+            self.obs_dim = 78
         else:
+            
             self.obs_dim = self.get_obs().size
             
         

@@ -10,8 +10,8 @@ from rfc_utils.config import Config
 
 
 
-
-from agent_envs.humanoid_amp_env import HumanoidTemplate
+#change this
+from agent_envs.humanoid_amp_env_2 import HumanoidTemplate
 from torch.utils.tensorboard import SummaryWriter
 from networks_models.common import MLP,Value
 from networks_models.policy_net import PolicyGaussian
@@ -80,9 +80,34 @@ value_net = Value(MLP(state_dim, cfg.value_hsize, cfg.value_htype))
 disc_net = Discriminator(net=MLP(amp_feature_size*2,cfg.value_hsize, cfg.value_htype),amp_reward_coef=0.5) 
 
 
+if args.iter > 0:
+    print('loading iter', args.iter)
+    cp_path = '%s/iter_%04d.p' % (cfg.model_dir, args.iter)
+    logger.info('loading model from checkpoint: %s' % cp_path)
+    model_cp = pickle.load(open(cp_path, "rb"))
+    policy_net.load_state_dict(model_cp['policy_dict'])
+    value_net.load_state_dict(model_cp['value_dict'])
+    disc_net.load_state_dict(model_cp['disc_dict'])
+    running_state = model_cp['running_state']
+    running_state_amp_features = model_cp['running_state_amp_features']
+    running_state_amp = model_cp['running_state_amp']
+    running_next_state_amp = model_cp['running_next_state_amp']
+
+
+
+
+
+
+
+
+
 print('policy net',policy_net)
 print('valu net',value_net)
 print('disc net',disc_net)
+
+
+
+
 
 
 policy_net.to(device)
@@ -171,7 +196,11 @@ def main_loop():
                 cp_path = '%s/iter_%04d.p' % (cfg.model_dir, i_iter + 1)
                 model_cp = {'policy_dict': policy_net.state_dict(),
                             'value_dict': value_net.state_dict(),
-                            'running_state': running_state}
+                            'disc_dict': disc_net.state_dict(),
+                            'running_state': running_state,
+                            'running_state_amp_features': running_state_amp_features,
+                            'running_state_amp': running_state_amp,
+                            'running_next_state_amp': running_next_state_amp}
                 pickle.dump(model_cp, open(cp_path, 'wb'))
         """clean up gpu memory"""
         torch.cuda.empty_cache()
