@@ -46,9 +46,9 @@ class HumanoidTemplate(HumanoidBase):
         
         
         self.target_speed = np.random.uniform(1, 5)
-        print('speed', self.target_speed)
+        #print('speed', self.target_speed)
         self.target_position = self.generate_random_target_position()
-        print('position', self.target_position)
+        #print('position', self.target_position)
         
         
         self.target_direction_local = self.convert_to_local(self.target_position)
@@ -58,7 +58,7 @@ class HumanoidTemplate(HumanoidBase):
     def get_target_position(self):
         return self.target_position
     
-    def generate_random_target_position(self, min_dist=6.0, max_dist=30.0):
+    def generate_random_target_position(self, min_dist=4.0, max_dist=20.0):
         """Sets the target's position within a specified range from the agent's current position."""
         # Get the agent's current position
         current_position = self.data.qpos[:3]  # Extract [x, y, z] root position
@@ -113,6 +113,8 @@ class HumanoidTemplate(HumanoidBase):
 
             """ Residual Force Control (RFC) """
             if cfg.residual_force:
+                
+              
                 vf = ctrl[-self.vf_dim:].copy()
                 if cfg.residual_force_mode == 'implicit':
                     self.rfc_implicit(vf)
@@ -130,7 +132,7 @@ class HumanoidTemplate(HumanoidBase):
         
         self.do_simulation(a, self.frame_skip)
         
-        print('root pos', self.data.qpos[:3])
+        #print('root pos', self.data.qpos[:3])
         #this is to keep track of how many steps are done
         #and it is reseted on the main reset function.
         self.cur_t += 1
@@ -295,10 +297,10 @@ class HumanoidTemplate(HumanoidBase):
         self.set_state(init_pose, init_vel)
 
         self.target_speed = np.random.uniform(1, 5)
-        print('speed', self.target_speed)
+        #print('speed', self.target_speed)
         self.target_position = self.generate_random_target_position()
         
-        print('position', self.target_position)
+        #print('position', self.target_position)
         
         self.bquat = self.get_body_quat()
          

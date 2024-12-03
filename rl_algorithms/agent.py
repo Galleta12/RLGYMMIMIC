@@ -9,6 +9,7 @@ import math
 import time
 import os
 from rl_algorithms.logger_rl import LoggerRL
+from rl_algorithms.replaybuffer import ReplayBuffer
 from utils.torch import *
 #from utils.memory import MemoryManager,TrajBatch
 from rl_rfc.core import TrajBatch
@@ -19,7 +20,7 @@ os.environ["OMP_NUM_THREADS"] = "1"
 class Agent:
 
     def __init__(self, env, policy_net, value_net, dtype, device, gamma, custom_reward=None,
-                 end_reward=True, mean_action=False, render=False, running_state=None, num_threads=1):
+                 end_reward=True, mean_action=False, render=False, running_state=None, num_threads=1,is_replay_buffer=True,buffer_capacity=100000):
         self.env = env
         self.policy_net = policy_net
         self.value_net = value_net
@@ -37,6 +38,8 @@ class Agent:
         self.logger_cls = LoggerRL
         self.sample_modules = [policy_net]
         self.update_modules = [policy_net, value_net]
+        self.is_replay_buffer = is_replay_buffer
+        self.replay_buffer = ReplayBuffer(buffer_capacity)
 
     def sample_worker(self, pid, queue, min_batch_size):
         torch.randn(pid)
@@ -45,6 +48,8 @@ class Agent:
             #self.env.np_random.seed(pid)
             #random_value = self.env.np_random.random()
             self.env.np_random.random()
+        
+       
         memory = Memory()
         logger = self.logger_cls()
 
@@ -84,8 +89,13 @@ class Agent:
 
                 terminated = 0 if done else 1
                 exp = 1 - mean_action
+                
+               
+                
                 self.push_memory(memory, state, action, terminated, next_state, reward, exp)
-
+                
+                
+                
                 if pid == 0 and self.render:
                     self.env.render()
                 if done:
@@ -105,6 +115,18 @@ class Agent:
             return memory, logger
 
 
+    
+    def replay_buffer_size(self):
+        return len(self.replay_buffer)
+    
+    
+
+    
+    def sample_replay_batch(self, batch_size):
+        """Returns a sample from the stored data."""
+        return self.replay_buffer.sample(batch_size)
+    
+        
     def push_memory(self, memory, state, action, terminated, next_state, reward, exp):
         memory.push(state, action, terminated, next_state, reward, exp)
 
@@ -112,14 +134,13 @@ class Agent:
     def sample(self, min_batch_size):
         t_start = time.time()
         
-        #not sure why valus is not fale
-        
         #to_test(*self.sample_modules)
         #set to test
         self.policy_net.train(False)
         
         with to_cpu(*self.sample_modules):
             with torch.no_grad():
+                #this is the batch size
                 thread_batch_size = int(math.floor(min_batch_size / self.num_threads))
                 #print('thread batch size', thread_batch_size)
                 queue = multiprocessing.Queue()
@@ -135,12 +156,32 @@ class Agent:
                     pid, worker_memory, worker_logger = queue.get()
                     memories[pid] = worker_memory
                     loggers[pid] = worker_logger
+                
+                
+           
                 traj_batch = self.traj_cls(memories)
+                
                 logger = self.logger_cls.merge(loggers)
-
+                
+                
+                self.replay_buffer.push(traj_batch)
+                
+            replay_data = self.sample_replay_batch(min_batch_size)
+            
+            # Use replay_data for training
+            print(f"Replay buffer batch shapes: {self.replay_buffer.get_shapes()}")               
+                
+            
             logger.sample_time = time.time() - t_start
-            return traj_batch, logger
+          
+            
+            return traj_batch, logger, replay_data
 
+    
+
+    
+    
+    
     def trans_policy(self, states):
         """transform states before going into policy net"""
         #print('trans policy')

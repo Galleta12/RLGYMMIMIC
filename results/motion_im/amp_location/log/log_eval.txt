@@ -7,3 +7,4 @@
 [2024-11-15 09:30:41,045] loading model from checkpoint: results/motion_im/amp_location/models/iter_1400.p
 [2024-11-26 11:02:21,848] loading model from checkpoint: results/motion_im/amp_location/models/iter_1000.p
 [2024-11-26 11:08:11,506] loading model from checkpoint: results/motion_im/amp_location/models/iter_1000.p
+[2024-12-02 21:58:56,322] loading model from checkpoint: results/motion_im/amp_location/models/iter_1000.p

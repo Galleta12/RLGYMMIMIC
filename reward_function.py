@@ -285,6 +285,9 @@ def reward_direction(env,state, action, info):
     return w_g * reward, np.array([w_g * reward])
 
 def reward_location(env, state, action, info):
+    
+ 
+    
     # Retrieve the target position (x*) in the global frame 
     x_star_global = env.get_target_position() # Target position in global coordinates
     x_root_t_global = env.data.qpos[:3]  # Agent's root position in global coordinates
@@ -303,15 +306,42 @@ def reward_location(env, state, action, info):
     projected_velocity = np.dot(d_star, x_com_velocity)  # Project COM velocity onto d_star direction
     velocity_reward = 0.3 * math.exp(-((max(0, v_star - projected_velocity)) ** 2))
 
+    
+    
     # Overall reward
     reward = distance_reward + velocity_reward
 
-    w_g = 0.5
+    #w_g = 0.5
+    
+    
     
     #print('rewards', distance_reward,'vel', velocity_reward)
-    return reward*w_g, np.array([distance_reward, velocity_reward])
+    return reward, np.array([distance_reward, velocity_reward])
 
 
+def compute_reward_amp(env,action, style_reward,task_reward):
+    
+    cfg = env.cfg
+    ws = cfg.reward_weights
+    w_task, w_style, w_vf = ws.get('w_task', 0.5), ws.get('w_style', 0.5), ws.get('w_vf', 0.0)
+    k_vf =  ws.get('k_vf', 1)
+    
+    # residual force reward
+    if w_vf > 0.0:
+   
+        
+        vf = action[-env.vf_dim:]
+        vf_reward = math.exp(-k_vf * (np.linalg.norm(vf) ** 2))
+    else:
+        vf_reward = 0.0
+    reward =  w_task * task_reward + w_style * style_reward + w_vf * vf_reward
+    reward /= w_task +w_style + w_vf
+    
+    return reward
+    
+    
+    
+    
 
 
 

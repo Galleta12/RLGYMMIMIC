@@ -9,16 +9,18 @@ import math
 import time
 import os
 from rl_algorithms.logger_rl import LoggerRL
+from rl_algorithms.replaybuffer import ReplayBuffer
 from utils.torch import *
 #from utils.memory import MemoryManager,TrajBatch
 from rl_algorithms.trajbatchamp import TrajBatchAmp
 from rfc_utils.memory import Memory
+from reward_function import compute_reward_amp
 os.environ["OMP_NUM_THREADS"] = "1"
 
 class AgentAMP:
     def __init__(self, env, policy_net, value_net, discriminator, dtype, device, gamma, custom_reward=None,
                  end_reward=True, mean_action=False, render=False, running_state=None, running_state_amp=None, running_next_state_amp=None ,
-                 running_state_amp_features=None,num_threads=1):
+                 running_state_amp_features=None,num_threads=1,buffer_capacity=100000):
         self.env = env
         self.policy_net = policy_net
         self.value_net = value_net
@@ -42,7 +44,9 @@ class AgentAMP:
        
         self.sample_modules = [policy_net,discriminator]
         self.update_modules = [policy_net, value_net, discriminator]
-
+        self.buffer_capacity = buffer_capacity
+        self.replay_buffer = ReplayBuffer(buffer_capacity)
+    
     
     def sample_worker(self, pid, queue, min_batch_size):
         torch.randn(pid)
@@ -99,9 +103,18 @@ class AgentAMP:
                     
                     task_reward, c_info = self.custom_reward(self.env, state, action, info)
                     
-                    c_reward,disc_output,style_reward = self.discriminator.predict_reward(tensor(amp_feature),tensor(next_amp_features),task_reward)
+                    style_reward,disc_output = self.discriminator.predict_reward(tensor(amp_feature),tensor(next_amp_features))
                     
-                    c_info = np.append(c_info,style_reward)
+                    
+                    #now calculate total reward
+                    
+                    c_reward = compute_reward_amp(self.env,action,style_reward,task_reward)
+                    
+                    
+                    #print(c_reward)
+                    
+                    
+                    c_info = np.append(c_info,[task_reward, style_reward])
                     
                     reward = c_reward.numpy()
                     
@@ -149,7 +162,15 @@ class AgentAMP:
     def push_memory(self, memory, state, action, terminated, next_state, reward, exp,amp_feature,next_amp_features,amp_state,amp_next_state):
         memory.push(state, action, terminated, next_state, reward, exp,amp_feature,next_amp_features,amp_state,amp_next_state)
 
+  
     
+
+    
+    def store_traj_batch(self, traj_batch):
+        self.replay_buffer.store_object(traj_batch)
+
+    def sample_replay_batch(self):
+        return self.replay_buffer.sample_objects()
     
     def sample(self, min_batch_size):
         t_start = time.time()
@@ -181,8 +202,26 @@ class AgentAMP:
                 traj_batch = self.traj_cls(memories)
                 logger = self.logger_cls.merge(loggers)
 
+                if self.buffer_capacity != 0.0:
+                    #print('storing in replay')
+                    # Store the traj_batch in the replay buffer
+                    self.replay_buffer.store_object(traj_batch)
+           
+                 
+            
+            
+            if self.buffer_capacity == 0.0:
+                replay_data = None
+            else:
+                #print('sampling')
+                replay_data = self.sample_replay_batch()
+                #print(replay_data.states.shape)
+            # Use replay_data for training
+            
+            print(f"Replay buffer size: {self.replay_buffer.size()}")               
+            
             logger.sample_time = time.time() - t_start
-            return traj_batch, logger
+            return traj_batch, logger,replay_data
 
 
 

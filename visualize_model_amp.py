@@ -74,7 +74,7 @@ amp_feature_size = env.amp_features_size
 policy_net = PolicyGaussian(MLP(state_dim, cfg.policy_hsize, cfg.policy_htype), action_dim, log_std=cfg.log_std, fix_std=cfg.fix_std)
 value_net = Value(MLP(state_dim, cfg.value_hsize, cfg.value_htype))
 """define the disc net"""
-disc_net = Discriminator(net=MLP(amp_feature_size*2,cfg.value_hsize, cfg.value_htype),amp_reward_coef=0.5) 
+disc_net = Discriminator(net=MLP(amp_feature_size*2,cfg.value_hsize, cfg.value_htype)) 
 cp_path = '%s/iter_%04d.p' % (cfg.model_dir, args.iter)
 print(cp_path)
 logger.info('loading model from checkpoint: %s' % cp_path)

@@ -42,6 +42,8 @@ device = torch.device('cuda', index=args.gpu_index) if torch.cuda.is_available()
 print('device', device)
 
 
+is_replay_buffer = False if cfg.replay_buffer_size == 0.0 else True
+
 
 if torch.cuda.is_available():
     torch.cuda.set_device(args.gpu_index)
@@ -77,7 +79,7 @@ print('amp features size for states', env.amp_features_size)
 policy_net = PolicyGaussian(MLP(state_dim, cfg.policy_hsize, cfg.policy_htype), action_dim, log_std=cfg.log_std, fix_std=cfg.fix_std)
 value_net = Value(MLP(state_dim, cfg.value_hsize, cfg.value_htype))
 """define the disc net"""
-disc_net = Discriminator(net=MLP(amp_feature_size*2,cfg.value_hsize, cfg.value_htype),amp_reward_coef=0.5) 
+disc_net = Discriminator(net=MLP(amp_feature_size*2,cfg.value_hsize, cfg.value_htype)) 
 
 
 if args.iter > 0:
@@ -116,21 +118,50 @@ disc_net.to(device)
 
 
 
+# Policy optimizer
 if cfg.policy_optimizer == 'Adam':
-    optimizer_policy = torch.optim.Adam(policy_net.parameters(), lr=cfg.policy_lr, weight_decay=cfg.policy_weightdecay)
+    optimizer_policy = torch.optim.Adam(
+        policy_net.parameters(),
+        lr=cfg.policy_lr,
+        weight_decay=cfg.policy_weightdecay
+    )
 else:
-    optimizer_policy = torch.optim.SGD(policy_net.parameters(), lr=cfg.policy_lr, momentum=cfg.policy_momentum, weight_decay=cfg.policy_weightdecay)
+    optimizer_policy = torch.optim.SGD(
+        policy_net.parameters(),
+        lr=cfg.policy_lr,
+        momentum=cfg.policy_momentum,
+        weight_decay=cfg.policy_weightdecay
+    )
+
+# Value optimizer
 if cfg.value_optimizer == 'Adam':
-    optimizer_value = torch.optim.Adam(value_net.parameters(), lr=cfg.value_lr, weight_decay=cfg.value_weightdecay)
-    #for now the same as value
-    optimizer_disc = torch.optim.Adam(disc_net.parameters(), lr=cfg.value_lr, weight_decay=cfg.value_weightdecay)
-    
+    optimizer_value = torch.optim.Adam(
+        value_net.parameters(),
+        lr=cfg.value_lr,
+        weight_decay=cfg.value_weightdecay
+    )
 else:
-    optimizer_value = torch.optim.SGD(value_net.parameters(), lr=cfg.value_lr, momentum=cfg.value_momentum, weight_decay=cfg.value_weightdecay)
-    #same as value
-    optimizer_disc = torch.optim.SGD(disc_net.parameters(), lr=cfg.value_lr, momentum=cfg.value_momentum, weight_decay=cfg.value_weightdecay)
+    optimizer_value = torch.optim.SGD(
+        value_net.parameters(),
+        lr=cfg.value_lr,
+        momentum=cfg.value_momentum,
+        weight_decay=cfg.value_weightdecay
+    )
 
-
+# Discriminator optimizer
+if cfg.discriminator_optimizer == 'Adam':
+    optimizer_disc = torch.optim.Adam(
+        disc_net.parameters(),
+        lr=cfg.discriminator_lr,
+        weight_decay=cfg.discriminator_weightdecay
+    )
+else:
+    optimizer_disc = torch.optim.SGD(
+        disc_net.parameters(),
+        lr=cfg.discriminator_lr,
+        momentum=cfg.discriminator_momentum,
+        weight_decay=cfg.discriminator_weightdecay
+    )
 
 # reward functions
 expert_reward = reward_func[cfg.reward_id]
@@ -146,12 +177,19 @@ agent = AmpAlg(env=env, dtype=dtype, device=device, running_state=running_state,
                  optimizer_policy=optimizer_policy, optimizer_value=optimizer_value, optimizer_disc=optimizer_disc,opt_num_epochs=cfg.num_optim_epoch,
                  gamma=cfg.gamma, gae_lambda=cfg.gae_lambda, clip_epsilon=cfg.clip_epsilon,
                  policy_grad_clip=[(policy_net.parameters(), 40)], end_reward=cfg.end_reward,
-                 use_mini_batch=cfg.mini_batch_size < cfg.min_batch_size, mini_batch_size=cfg.mini_batch_size)
+                 use_mini_batch=cfg.mini_batch_size < cfg.min_batch_size, mini_batch_size=cfg.mini_batch_size,buffer_capacity=cfg.replay_buffer_size)
 
 
 print('opt_num_epochs', agent.opt_num_epochs)
 print('mini batch', agent.use_mini_batch)
 print('mean action', agent.mean_action)
+print('optimizar policy', optimizer_policy)
+print('optimizar value', optimizer_value)
+print('optimizar disc', optimizer_disc)
+print('is replay buffer', is_replay_buffer)
+print('replay buffer size',cfg.replay_buffer_size)
+
+
 
 def get_eta_str(cur_iter, total_iter, time_per_iter):
     eta = time_per_iter * (total_iter - cur_iter - 1)
@@ -168,14 +206,28 @@ def main_loop():
     for i_iter in range(args.iter, cfg.max_iter_num):
         """generate multiple trajectories that reach the minimum batch_size"""
         #pre_iter_update(i_iter)
-        batch, log = agent.sample(cfg.min_batch_size)
+        batch, log,replay_data = agent.sample(cfg.min_batch_size)
         
             
-        print('batch shapes:', batch.get_shapes())
-      
+        # print("Replay Data Shapes:")
+        # for key, value in replay_data.items():
+        #     print(f"{key}: {value.shape}")
+        
+        if not is_replay_buffer:
+            print('batch shapes of current trajectory:', batch.get_shapes())
+        else:
+            print('batch shapes of current sample replay data:', replay_data.get_shapes())
+            
         """update networks"""
         t0 = time.time()
-        agent.update_params(batch)
+        if is_replay_buffer:
+       
+            agent.update_params(replay_data)
+            
+        else:
+             
+            agent.update_params(batch)
+        
         t1 = time.time()
         """logging"""
         c_info = log.avg_c_info

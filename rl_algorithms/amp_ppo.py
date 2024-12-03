@@ -11,6 +11,9 @@ sys.path.append(parent_dir)
 from rl_algorithms.agent_amp import AgentAMP
 from rl_algorithms.common_formulas import estimate_advantages
 
+
+
+
 class AmpAlg(AgentAMP):
     def __init__(self, clip_epsilon=0.2, mini_batch_size=64, use_mini_batch=False,
                  policy_grad_clip=None,gae_lambda=0.95, optimizer_policy=None, optimizer_value=None,
@@ -50,6 +53,7 @@ class AmpAlg(AgentAMP):
         self.discriminator.train(True)
         
         for _ in range(self.opt_num_epochs):
+            #sample replay buffer
             if self.use_mini_batch:
                 
                 
@@ -267,4 +271,45 @@ class AmpAlg(AgentAMP):
         self.update_policy(states, actions, returns, advantages, exps,amp_features,amp_next_features,amp_states,amp_next_states)
 
         return time.time() - t0
+
+    # def update_params_replay(self, _states, _actions,  _rewards, _terminates, _exps,_amp_features,
+    #                          _amp_next_features,_amp_states,_amp_next_states):
+    #     t0 = time.time()
+        
+    #     #to_train(*self.update_modules)
+        
+    #     # #set test mode
+    #     # self.policy_net.train(True)
+    #     # self.value_net.train(True)
+        
+    #     states = torch.from_numpy(_states).to(self.dtype).to(self.device)
+    #     actions = torch.from_numpy(_actions).to(self.dtype).to(self.device)
+    #     rewards = torch.from_numpy(_rewards).to(self.dtype).to(self.device)
+    #     terminates = torch.from_numpy(_terminates).to(self.dtype).to(self.device)
+    #     exps = torch.from_numpy(_exps).to(self.dtype).to(self.device)
+        
+    #     amp_features = torch.from_numpy(_amp_features).to(self.dtype).to(self.device)
+    #     amp_next_features = torch.from_numpy(_amp_next_features).to(self.dtype).to(self.device)
+    #     amp_states = torch.from_numpy(_amp_states).to(self.dtype).to(self.device)
+    #     amp_next_states = torch.from_numpy(_amp_next_states).to(self.dtype).to(self.device)
+    #     #with to_test(*self.update_modules):
+       
+        
+    #     self.policy_net.train(False)
+    #     self.value_net.train(False)
+    #     self.discriminator.train(False)
+    #     #get the value net
+    #     #this is imporant since this will be the value function for computing GAES
+    #     with torch.no_grad():
+    #         #forward pass
+    #         values = self.value_net(self.trans_value(states))
+    #     #self.policy_net.train(True)
+    #     #self.value_net.train(True)
+        
+    #     """get advantage estimation from the trajectories"""
+    #     advantages, returns = estimate_advantages(rewards, terminates, values, self.gamma, self.gae_lambda)
+
+    #     self.update_policy(states, actions, returns, advantages, exps,amp_features,amp_next_features,amp_states,amp_next_states)
+
+    #     return time.time() - t0
 

@@ -41,12 +41,25 @@ class Config:
         self.policy_lr = cfg.get('policy_lr', 5e-5)
         self.policy_momentum = cfg.get('policy_momentum', 0.0)
         self.policy_weightdecay = cfg.get('policy_weightdecay', 0.0)
+        
         self.value_htype = cfg.get('value_htype', 'relu')
         self.value_hsize = cfg.get('value_hsize', [300, 200])
         self.value_optimizer = cfg.get('value_optimizer', 'Adam')
         self.value_lr = cfg.get('value_lr', 3e-4)
         self.value_momentum = cfg.get('value_momentum', 0.0)
         self.value_weightdecay = cfg.get('value_weightdecay', 0.0)
+        
+        self.discriminator_htype = cfg.get('discriminator_htype', 'relu')
+        self.discriminator_hsize = cfg.get('discriminator_hsize', [300, 200])
+        self.discriminator_optimizer = cfg.get('discriminator_optimizer', 'Adam')
+        self.discriminator_lr = cfg.get('discriminator_lr', 1e-5)
+        self.discriminator_momentum = cfg.get('discriminator_momentum', 0.0)
+        self.discriminator_weightdecay = cfg.get('discriminator_weightdecay', 0.0)
+        
+        
+        self.replay_buffer_size = cfg.get('replay_buffer_size', 0.0)
+        
+        
         self.adv_clip = cfg.get('adv_clip', np.inf)
         self.clip_epsilon = cfg.get('clip_epsilon', 0.2)
         self.log_std = cfg.get('log_std', -2.3)
@@ -60,7 +73,7 @@ class Config:
         self.reward_id = cfg.get('reward_id', 'quat')
         self.reward_weights = cfg.get('reward_weights', None)
         self.end_reward = cfg.get('end_reward', False)
-
+        
         # adaptive parameters
         self.adp_iter_cp = np.array(cfg.get('adp_iter_cp', [0]))
         self.adp_noise_rate_cp = np.array(cfg.get('adp_noise_rate_cp', [1.0]))
