@@ -270,3 +270,55 @@ class HumanoidBase(MujocoEnv,EzPickle):
     def get_expert_attr(self, attr, ind):
         return self.expert[attr][ind, :]
 
+    def pose_error(self):
+        """
+        Computes the pose error at the current timestep using xpos for expert and simulated data.
+
+        Returns:
+            float: Pose error for the current timestep.
+        """
+        t = self.cur_t
+        ind = self.get_expert_index(t)
+
+        # Expert xpos
+        #first element is the world body we dont care about that
+        e_xpos = self.get_expert_attr('xpos',ind)[1:]
+        
+        #print('expos', e_xpos)
+        e_root_pos = e_xpos[0]  # Assuming root is the first body
+
+        # Simulated xpos
+        s_xpos = np.array([self.data.xpos[j] for j in range(self.model.nbody)])
+        
+        s_xpos = s_xpos[1:]
+        #print('s_xpos', s_xpos)
+        
+        s_root_pos = s_xpos[0]  # Assuming root is the first body
+
+        # Compute relative positions (joints relative to root)
+        e_relative = e_xpos[1:] - e_root_pos
+        s_relative = s_xpos[1:] - s_root_pos
+
+        
+        
+        
+        # Compute the L2 norm of the differences
+        error = np.linalg.norm(e_relative - s_relative, axis=1).mean()
+
+        return error
+    
+    def demo_replay(self):
+        t = self.cur_t
+        ind = self.get_expert_index(t)
+        
+        pose_error = self.pose_error()  
+        if pose_error > self.cfg.epsilon_demo:
+            demo_state = self.get_expert_attr('qpos',ind)
+            demo_vel = self.get_expert_attr('qvel',ind)
+            self.set_state(demo_state, demo_vel)
+            
+            
+        self.bquat = self.get_body_quat()
+        self.update_expert()
+                
+                

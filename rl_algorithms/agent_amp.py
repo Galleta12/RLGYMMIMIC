@@ -12,7 +12,7 @@ from rl_algorithms.logger_rl import LoggerRL
 from rl_algorithms.replaybuffer import ReplayBuffer
 from utils.torch import *
 #from utils.memory import MemoryManager,TrajBatch
-from rl_algorithms.trajbatchamp import TrajBatchAmp
+from rl_algorithms.trajbatchamp import TrajBatchAmp, TrajBatchAmpReplay
 from rfc_utils.memory import Memory
 from reward_function import compute_reward_amp
 os.environ["OMP_NUM_THREADS"] = "1"
@@ -44,8 +44,33 @@ class AgentAMP:
        
         self.sample_modules = [policy_net,discriminator]
         self.update_modules = [policy_net, value_net, discriminator]
+        
+        
+        
         self.buffer_capacity = buffer_capacity
-        self.replay_buffer = ReplayBuffer(buffer_capacity)
+        if buffer_capacity != 0.0:
+            min_batch_size = self.env.cfg.min_batch_size
+            self.replay_buffer = ReplayBuffer(
+                buffer_capacity,
+                batch_size=min_batch_size,
+                fields={
+                    'states': (env.observation_space.shape[0],),
+                    'actions': (env.action_space.shape[0],),
+                    'terminates': (),
+                    'next_states': (env.observation_space.shape[0],),
+                    'rewards': (),
+                    'exps': (),
+                    'amp_features': (env.amp_features_size,),
+                    'amp_next_features': (env.amp_features_size,),
+                    'amp_states': (env.amp_features_size,),
+                    'amp_next_states': (env.amp_features_size,),
+                }
+            )
+        else:
+            self.replay_buffer = None
+                
+        
+      
     
     
     def sample_worker(self, pid, queue, min_batch_size):
@@ -108,13 +133,13 @@ class AgentAMP:
                     
                     #now calculate total reward
                     
-                    c_reward = compute_reward_amp(self.env,action,style_reward,task_reward)
+                    c_reward,vf_reward = compute_reward_amp(self.env,action,style_reward,task_reward)
                     
                     
                     #print(c_reward)
                     
                     
-                    c_info = np.append(c_info,[task_reward, style_reward])
+                    c_info = np.append(c_info,[vf_reward,task_reward, style_reward])
                     
                     reward = c_reward.numpy()
                     
@@ -166,11 +191,25 @@ class AgentAMP:
     
 
     
-    def store_traj_batch(self, traj_batch):
-        self.replay_buffer.store_object(traj_batch)
+    def store_collected_data(self, traj_batch):
+         # Select the first min_batch_size transitions
+        min_batch_size = self.env.cfg.min_batch_size
+        self.replay_buffer.store_transition({
+            'states': traj_batch.states[:min_batch_size],
+            'actions': traj_batch.actions[:min_batch_size],
+            'terminates': traj_batch.terminates[:min_batch_size],
+            'next_states': traj_batch.next_states[:min_batch_size],
+            'rewards': traj_batch.rewards[:min_batch_size],
+            'exps': traj_batch.exps[:min_batch_size],
+            'amp_features': traj_batch.amp_features[:min_batch_size],
+            'amp_next_features': traj_batch.amp_next_features[:min_batch_size],
+            'amp_states': traj_batch.amp_states[:min_batch_size],
+            'amp_next_states': traj_batch.amp_next_states[:min_batch_size]
+        })
 
-    def sample_replay_batch(self):
-        return self.replay_buffer.sample_objects()
+
+
+
     
     def sample(self, min_batch_size):
         t_start = time.time()
@@ -199,33 +238,49 @@ class AgentAMP:
                     
                     memories[pid] = worker_memory
                     loggers[pid] = worker_logger
+                
+          
+                
                 traj_batch = self.traj_cls(memories)
                 logger = self.logger_cls.merge(loggers)
 
+                
+                
+                
                 if self.buffer_capacity != 0.0:
                     #print('storing in replay')
                     # Store the traj_batch in the replay buffer
-                    self.replay_buffer.store_object(traj_batch)
+                    self.store_collected_data(traj_batch)
            
                  
             
-            
-            if self.buffer_capacity == 0.0:
-                replay_data = None
+            if self.buffer_capacity != 0.0:
+                if self.replay_buffer.ready():
+                    replay_data = self.replay_buffer.sample_buffer()
+                    replay_data = self.convert_to_trajbatchamp(replay_data)
+                    #print("replay data",replay_data)
+                    print(f"Replay buffer size: {self.replay_buffer.size()}")               
+                    
+                
             else:
-                #print('sampling')
-                replay_data = self.sample_replay_batch()
+                replay_data = None
                 #print(replay_data.states.shape)
             # Use replay_data for training
             
-            print(f"Replay buffer size: {self.replay_buffer.size()}")               
             
             logger.sample_time = time.time() - t_start
             return traj_batch, logger,replay_data
 
 
-
-    
+    def convert_to_trajbatchamp(self, sampled_batch):
+        """
+        Convert sampled batch from replay buffer to a TrajBatchAmp object.
+        :param sampled_batch: Dictionary of sampled data from replay buffer.
+        :return: TrajBatchAmpReplay object.
+        """
+        # Create a TrajBatchAmpReplay object directly from the dictionary
+        return TrajBatchAmpReplay(sampled_batch)
+        
     
     
     

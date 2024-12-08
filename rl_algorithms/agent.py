@@ -20,7 +20,7 @@ os.environ["OMP_NUM_THREADS"] = "1"
 class Agent:
 
     def __init__(self, env, policy_net, value_net, dtype, device, gamma, custom_reward=None,
-                 end_reward=True, mean_action=False, render=False, running_state=None, num_threads=1,is_replay_buffer=True,buffer_capacity=100000):
+                 end_reward=True, mean_action=False, render=False, running_state=None, num_threads=1):
         self.env = env
         self.policy_net = policy_net
         self.value_net = value_net
@@ -38,8 +38,8 @@ class Agent:
         self.logger_cls = LoggerRL
         self.sample_modules = [policy_net]
         self.update_modules = [policy_net, value_net]
-        self.is_replay_buffer = is_replay_buffer
-        self.replay_buffer = ReplayBuffer(buffer_capacity)
+      
+     
 
     def sample_worker(self, pid, queue, min_batch_size):
         torch.randn(pid)
@@ -83,6 +83,12 @@ class Agent:
                     #print('cusrom reward')
                     
                     c_reward, c_info = self.custom_reward(self.env, state, action, info)
+                    #get the pose error aswell
+                    pose_error = self.env.pose_error()
+                    
+                    c_info = np.append(c_info,[pose_error])
+                    
+                    
                     reward = c_reward
                 # logging
                 logger.step(self.env, env_reward, c_reward, c_info, info)
@@ -115,17 +121,7 @@ class Agent:
             return memory, logger
 
 
-    
-    def replay_buffer_size(self):
-        return len(self.replay_buffer)
-    
-    
 
-    
-    def sample_replay_batch(self, batch_size):
-        """Returns a sample from the stored data."""
-        return self.replay_buffer.sample(batch_size)
-    
         
     def push_memory(self, memory, state, action, terminated, next_state, reward, exp):
         memory.push(state, action, terminated, next_state, reward, exp)
@@ -164,18 +160,13 @@ class Agent:
                 logger = self.logger_cls.merge(loggers)
                 
                 
-                self.replay_buffer.push(traj_batch)
-                
-            replay_data = self.sample_replay_batch(min_batch_size)
-            
-            # Use replay_data for training
-            print(f"Replay buffer batch shapes: {self.replay_buffer.get_shapes()}")               
-                
+ 
+                    
             
             logger.sample_time = time.time() - t_start
           
             
-            return traj_batch, logger, replay_data
+            return traj_batch, logger
 
     
 

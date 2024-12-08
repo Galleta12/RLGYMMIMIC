@@ -46,9 +46,9 @@ class HumanoidTemplate(HumanoidBase):
         
         
         self.target_speed = np.random.uniform(1, 5)
-        #print('speed', self.target_speed)
+        print('speed', self.target_speed)
         self.target_position = self.generate_random_target_position()
-        #print('position', self.target_position)
+        print('position', self.target_position)
         
         
         self.target_direction_local = self.convert_to_local(self.target_position)
@@ -132,7 +132,7 @@ class HumanoidTemplate(HumanoidBase):
         
         self.do_simulation(a, self.frame_skip)
         
-        #print('root pos', self.data.qpos[:3])
+        print('root pos', self.data.qpos[:3])
         #this is to keep track of how many steps are done
         #and it is reseted on the main reset function.
         self.cur_t += 1
@@ -297,10 +297,10 @@ class HumanoidTemplate(HumanoidBase):
         self.set_state(init_pose, init_vel)
 
         self.target_speed = np.random.uniform(1, 5)
-        #print('speed', self.target_speed)
+        print('speed', self.target_speed)
         self.target_position = self.generate_random_target_position()
         
-        #print('position', self.target_position)
+        print('position', self.target_position)
         
         self.bquat = self.get_body_quat()
          

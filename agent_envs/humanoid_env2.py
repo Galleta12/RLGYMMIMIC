@@ -79,9 +79,14 @@ class HumanoidTemplate(HumanoidBase):
         # do simulation
         self.do_simulation(a, self.frame_skip)
         self.cur_t += 1
-        self.bquat = self.get_body_quat()
-        self.update_expert()
         
+        if self.cfg.is_demo_replay:
+            self.demo_replay()
+            
+        else:
+            self.bquat = self.get_body_quat()
+            self.update_expert()
+            
         reward = 1.0
         #reward = world_rfc_implicit_reward(self,None,a,None)
         
@@ -114,3 +119,4 @@ class HumanoidTemplate(HumanoidBase):
     
    
 
+    

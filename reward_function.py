@@ -337,10 +337,13 @@ def compute_reward_amp(env,action, style_reward,task_reward):
     reward =  w_task * task_reward + w_style * style_reward + w_vf * vf_reward
     reward /= w_task +w_style + w_vf
     
-    return reward
+    return reward,vf_reward
     
     
-    
+
+
+
+
     
 
 

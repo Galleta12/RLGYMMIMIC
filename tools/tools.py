@@ -17,7 +17,7 @@ def get_expert(expert_qpos, expert_meta,env):
     feat_keys = {'qvel', 'rlinv', 'rlinv_local', 'rangv', 'rq_rmh',
                  'com', 'head_pos', 'ee_pos', 'ee_wpos', 'bquat', 'bangvel',
                  'linear_local_root_amp','linear_angular_root_amp','local_rotation_amp','local_vel_amp',
-                 'local_ee_pos_amp'}
+                 'local_ee_pos_amp','xpos'}
     for key in feat_keys:
         expert[key] = []
 
@@ -31,6 +31,13 @@ def get_expert(expert_qpos, expert_meta,env):
         ee_wpos = env.get_ee_pos(None)
         bquat = env.get_body_quat()
         com = env.get_com()
+        
+        xpos = np.array([env.data.xpos[j].copy() for j in range(env.model.nbody)])  # Copy is important!
+        expert['xpos'].append(xpos)
+        
+        # print('exper ss',xpos.shape)
+        
+        
         
         #if not using the standard humanoid model
         if not env.cfg.use_standard_model:
@@ -91,7 +98,11 @@ def get_expert(expert_qpos, expert_meta,env):
     expert['bangvel'].insert(0, expert['bangvel'][0].copy())
 
     for key in feat_keys:
-        expert[key] = np.vstack(expert[key])
+        
+        if key == 'xpos':
+            expert[key] = np.array(expert[key])  # This keeps the shape as (T, nbody, 3)
+        else:
+            expert[key] = np.vstack(expert[key])  # For other keys
     expert['len'] = expert['qpos'].shape[0]
     expert['height_lb'] = expert['qpos'][:, 2].min()
     expert['head_height_lb'] = expert['head_pos'][:, 2].min()

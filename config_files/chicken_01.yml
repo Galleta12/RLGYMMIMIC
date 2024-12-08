@@ -46,6 +46,8 @@ env_term_body: 'root'
 env_expert_trail_steps: 10
 obs_coord: 'root'
 obs_phase: true
+demo_replay: false
+epsilon_demo: 0.0
 
 # RFC parameters
 residual_force: true

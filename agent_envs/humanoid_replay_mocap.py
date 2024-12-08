@@ -83,19 +83,31 @@ class HumanoidReplayMocap(HumanoidBase):
         self.prev_qpos = self.data.qpos.copy()
         self.prev_qvel = self.data.qvel.copy()
         self.prev_bquat = self.bquat.copy()
-        #self.do_simulation(a, self.frame_skip)
+        self.do_simulation(a, self.frame_skip)
         
         #index for the expert add
         self.cur_t += 1
-        print("index expert", self.cur_t)
+        #print("index expert", self.cur_t)
         t = self.get_expert_index(self.cur_t)
-        print('t', t)
+        #print('t', t)
         self.data.qpos[:] = self.get_expert_attr('qpos', t).copy()
         
-        mj.mj_forward(self.model, self.data)
-        self.update_expert()
+        #mj.mj_forward(self.model, self.data)
         
-        self.bquat = self.get_body_quat()
+        
+        pose_error = self.pose_error()
+        
+        print("pose_error",pose_error)
+        
+        
+           
+        if self.cfg.is_demo_replay:
+        
+            self.demo_replay()
+            
+        else:
+            self.bquat = self.get_body_quat()
+            self.update_expert()
         
         
         #reward = 1.0
@@ -103,8 +115,8 @@ class HumanoidReplayMocap(HumanoidBase):
         reward, reward_info = world_reward(self,None,a,None)
         #reward, reward_info = world_rfc_implicit_reward(self,None,a,None)
         #reward, reward_info = local_rfc_implicit_reward(self,None,a,None)
-        print("reward", reward)
-        print("reward infor", reward_info)
+        #print("reward", reward)
+        #print("reward infor", reward_info)
         
         fail = self.expert is not None and self.data.qpos[2] < self.expert['height_lb'] - 0.1
         cyclic = self.expert['meta']['cyclic']

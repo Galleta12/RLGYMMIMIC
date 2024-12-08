@@ -4,46 +4,69 @@ import numpy as np
 import numpy as np
 
 class ReplayBuffer:
-    def __init__(self, max_size):
-        """
-        Replay buffer for storing objects like traj_batch.
-        """
-        self.max_size = max_size
-        self.buffer = []
-        self.mem_cntr = 0  # Counter to track the number of stored items
+    def __init__(self, max_size, batch_size, fields):
+        self.mem_size = max_size
+        self.mem_cntr = 0
+        self.batch_size = batch_size
+        self.fields = fields
 
-    def store_object(self, obj):
+        # Create buffers for each field using np.float64
+        for field, shape in self.fields.items():
+            setattr(self, field, np.zeros((max_size,) + shape, dtype=np.float32))
+    
+    
+    def store_transition(self, items):
         """
-        Store an object in the buffer and manage capacity.
+        Store a single transition or a batch of transitions into the replay buffer.
+        :param items: A dictionary of {field_name: field_value}.
+                      Each field_value can be a single transition or a batch of transitions.
         """
-        if len(self.buffer) < self.max_size:
-            self.buffer.append(obj)  # Append if there's space
-        else:
-            self.buffer[self.mem_cntr % self.max_size] = obj  # Overwrite oldest memory
+        num_items = len(next(iter(items.values())))  # Determine if it's a batch or single transition
+        
+        #print('num_items',num_items)
+        start_index = self.mem_cntr % self.mem_size  # Start position for storing
+        end_index = (start_index + num_items) % self.mem_size  # End position for storing
 
-        self.mem_cntr += 1
+        # If the data wraps around, split the storage
+        for field, value in items.items():
+            if end_index > start_index:
+                getattr(self, field)[start_index:end_index] = value
+            else:
+                # Split the data between the end and the beginning
+                split_index = self.mem_size - start_index
+                getattr(self, field)[start_index:] = value[:split_index]
+                getattr(self, field)[:end_index] = value[split_index:]
 
-    def sample_objects(self):
+        self.mem_cntr += num_items
+    
+    def sample_buffer(self):
         """
-        Randomly pick a single TrajBatchAmp object from the buffer.
+        Sample a batch of transitions uniformly from the replay buffer.
+        :return: A dictionary of sampled transitions.
         """
-        if len(self.buffer) == 0:
-            raise ValueError("The buffer is empty. Cannot sample objects.")
+        max_mem = min(self.mem_cntr, self.mem_size)
 
-        # Randomly pick a single index
-        index = np.random.randint(0, len(self.buffer))
+        # Uniformly sample a batch of indices
+        batch_indices = np.random.choice(max_mem, self.batch_size, replace=False)
 
-        # Return the object at the selected index
-        return self.buffer[index]
+        # Collect sampled data for all fields
+        sampled_data = {field: getattr(self, field)[batch_indices] for field in self.fields}
 
+      
+
+        return sampled_data
+
+    
+    def ready(self):
+        """
+        Check if the buffer is ready for sampling.
+        :return: True if the buffer has at least `batch_size` samples.
+        """
+        return self.mem_cntr >= self.batch_size
+    
     def size(self):
         """
-        Return the current number of objects in the buffer.
+        Get the current size of the buffer (number of stored transitions).
+        :return: The current size of the buffer.
         """
-        return len(self.buffer)
-
-    def is_full(self):
-        """
-        Check if the buffer is at maximum capacity.
-        """
-        return len(self.buffer) == self.max_size
+        return min(self.mem_cntr, self.mem_size)

@@ -102,6 +102,8 @@ class Config:
         self.obs_direction = cfg.get('obs_direction', False)
         self.root_deheading = cfg.get('root_deheading', False)
         self.action_type = cfg.get('action_type', 'position')
+        self.epsilon_demo = cfg.get('epsilon_demo', 0.0)
+        self.is_demo_replay = cfg.get('demo_replay', False)
         
         self.use_standard_model = cfg.get('use_standard_model', False)
 

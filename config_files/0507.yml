@@ -23,6 +23,10 @@ num_optim_epoch: 10
 log_std: -2.3
 fix_std: true
 max_iter_num: 2000
+
+
+replay_buffer_size: 0.0
+
 seed: 1
 save_model_interval: 100
 reward_id: 'local_rfc_implicit'

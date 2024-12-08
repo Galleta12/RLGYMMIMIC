@@ -57,7 +57,7 @@ class AmpAlg(AgentAMP):
             if self.use_mini_batch:
                 
                 
-                #shuffle the observations
+                #shuffle shape 0 is the same for everything
                 b_inds = np.arange(states.shape[0])
                 np.random.shuffle(b_inds)
                 

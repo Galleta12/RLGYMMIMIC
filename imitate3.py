@@ -37,7 +37,6 @@ device = torch.device('cuda', index=args.gpu_index) if torch.cuda.is_available()
 print('device', device)
 
 
-is_replay_buffer = False
 
 
 if torch.cuda.is_available():
@@ -134,13 +133,8 @@ def main_loop():
         """generate multiple trajectories that reach the minimum batch_size"""
         #pre_iter_update(i_iter)
       
-        batch, log,replay_data = agent.sample(cfg.min_batch_size)
+        batch, log = agent.sample(cfg.min_batch_size)
          
-        # print("Replay Data Shapes:")
-        # for key, value in replay_data.items():
-        #     print(f"{key}: {value.shape}")
-        
-        
             
         print('batch shapes of current trajectory:', batch.get_shapes())
 
@@ -149,12 +143,7 @@ def main_loop():
         
         """update networks"""
         t0 = time.time()
-        if is_replay_buffer:
-            agent.update_params_replay(replay_data['states'], replay_data['actions'], replay_data['rewards'], replay_data['terminates'], replay_data['exps'])
-            
-        else:
-                
-            agent.update_params(batch)
+        agent.update_params(batch)
         t1 = time.time()
         """logging"""
         c_info = log.avg_c_info

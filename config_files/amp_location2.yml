@@ -29,7 +29,7 @@ discriminator_weightdecay: 0.0
 clip_epsilon: 0.02
 min_batch_size: 4096
 mini_batch_size: 256
-num_optim_epoch: 40
+num_optim_epoch: 1
 
 replay_buffer_size: 100000
 
@@ -37,7 +37,7 @@ replay_buffer_size: 100000
 log_std: -2.3
 fix_std: true
 
-max_iter_num: 200000
+max_iter_num: 20000000
 
 
 seed: 1
