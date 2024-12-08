@@ -21,11 +21,21 @@ class AMPDataset:
         self.env = env
         # Define motion files (more clips can be added here)
         self.motion_files = {
-            "run_01": 'data/motion/run_01_test.p',
-            "walk_01": 'data/motion/walk_01_test.p',
-            "walk_90_left": 'data/motion/walk-90-left.p',
-            "walk_90_right": 'data/motion/walk-90-right.p'
+            "run_01": 'data/motion/walk_exagerated.p',
+            "run_wide_leg": 'data/motion/run_wide_leg.p',
+            "run_left": 'data/motion/run_left.p',
+            "run_right": 'data/motion/run_right.p',
+            "run_circle": 'data/motion/run_circle.p',
+            "run_ver_left": 'data/motion/run_ver_left.p',
+            "run_ver_right": 'data/motion/run_ver_right.p'
         }
+        
+        # self.motion_files = {
+        #     "run_01": 'data/motion/run_01_test.p',
+        #     "walk_01": 'data/motion/walk_01_test.p',
+        #     "walk_90_left": 'data/motion/walk-90-left.p',
+        #     "walk_90_right": 'data/motion/walk-90-right.p'
+        # }
         
         self.motion_clips = []
         self.clip_lengths = []

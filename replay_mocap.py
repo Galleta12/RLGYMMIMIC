@@ -36,6 +36,7 @@ def visualize():
     print('env start first',env_mocap.cfg.env_start_first)
     print('start ind', env_mocap.start_ind)
     
+    
     for i in range(2000):
         #random action
         action = env_mocap.action_space.sample()    

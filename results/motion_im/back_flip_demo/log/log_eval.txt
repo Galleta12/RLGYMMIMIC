@@ -1,0 +1,7 @@
+[2024-12-08 17:27:33,011] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_1000.p
+[2024-12-08 17:28:25,347] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_1000.p
+[2024-12-08 17:31:22,275] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_1000.p
+[2024-12-08 17:31:45,152] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_1000.p
+[2024-12-08 17:32:31,049] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_1000.p
+[2024-12-08 17:33:01,213] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_1000.p
+[2024-12-08 17:38:19,705] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_1000.p
