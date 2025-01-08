@@ -1,0 +1,2 @@
+[2024-12-16 21:03:34,833] loading model from checkpoint: results/motion_im/back_flip_noentropy2/models/iter_0500.p
+[2024-12-17 11:54:48,589] loading model from checkpoint: results/motion_im/back_flip_noentropy2/models/iter_0500.p

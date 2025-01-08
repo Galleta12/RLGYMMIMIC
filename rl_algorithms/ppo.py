@@ -14,7 +14,7 @@ from rl_algorithms.common_formulas import estimate_advantages
 class PPO(Agent):
     def __init__(self, clip_epsilon=0.2, mini_batch_size=64, use_mini_batch=False,
                  policy_grad_clip=None,gae_lambda=0.95, optimizer_policy=None, optimizer_value=None,
-                 opt_num_epochs=1, value_opt_niter=1,entropy_coef= 0.01,value_loss_coef=1,**kwargs):
+                 opt_num_epochs=1, value_opt_niter=1,entropy_coef= 0.01,value_loss_coef=1,is_entropy=True,**kwargs):
         super().__init__(**kwargs)
         self.gae_lambda = gae_lambda
         self.optimizer_policy = optimizer_policy
@@ -27,6 +27,7 @@ class PPO(Agent):
         self.mini_batch_size = mini_batch_size
         self.use_mini_batch = use_mini_batch
         self.policy_grad_clip = policy_grad_clip
+        self.is_entropy = is_entropy
     
     
     def update_policy(self, states, actions, returns, advantages, exps):
@@ -90,10 +91,13 @@ class PPO(Agent):
                     
                     #surrogate loss 
                     surr_loss, entropy_regularization =self.actor_loss_entropy(states_b, actions_b, advantages_b, old_log_probs_b, ind)            
-                    
-                    self.update_networks(critic_loss,surr_loss,entropy_regularization)
-                    
-                    
+                    if self.is_entropy:
+                        
+                     
+                        self.update_networks(critic_loss,surr_loss,entropy_regularization)
+                    else:
+                        self.update_networks_separete(critic_loss,surr_loss)
+                        
             else:
                 print('error with the min batch(batch) and mini bathc')
     
@@ -125,7 +129,7 @@ class PPO(Agent):
         self.optimizer_policy.step()
     
     
-    def update_networks_separete(self,critic_loss,surr_loss,entropy_regularization):
+    def update_networks_separete(self,critic_loss,surr_loss):
         
         self.optimizer_value.zero_grad()
         
@@ -133,11 +137,11 @@ class PPO(Agent):
         critic_loss.backward()
         
         
+        self.optimizer_value.step()
         
         self.optimizer_policy.zero_grad()
       
-        
-        #surr_loss.backward()
+        surr_loss.backward()
         #clip policy gradient
         self.clip_policy_grad()
         #update it

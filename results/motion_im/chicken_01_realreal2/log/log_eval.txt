@@ -1,0 +1,1 @@
+[2025-01-06 19:22:26,885] loading model from checkpoint: results/motion_im/chicken_01_realreal2/models/iter_1000.p

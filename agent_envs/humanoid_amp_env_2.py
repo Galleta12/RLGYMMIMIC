@@ -132,7 +132,7 @@ class HumanoidTemplate(HumanoidBase):
         
         self.do_simulation(a, self.frame_skip)
         
-        print('root pos', self.data.qpos[:3])
+        #print('root pos', self.data.qpos[:3])
         #this is to keep track of how many steps are done
         #and it is reseted on the main reset function.
         self.cur_t += 1

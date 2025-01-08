@@ -31,7 +31,7 @@ mini_batch_size: 2048
 num_optim_epoch: 10
 log_std: -2.3
 fix_std: true
-max_iter_num: 2000
+max_iter_num: 4000
 seed: 1
 save_model_interval: 100
 reward_id: 'reward_location'

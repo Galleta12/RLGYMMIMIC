@@ -154,25 +154,64 @@ def update_pose(env_replay:HumanoidReplay,data,fr):
     # Get predicted root position
     pred_pos = data['pred'][fr][:3]
 
+    pred_agent_pos = env_replay.data.qpos[env.model.nq:env.model.nq + 3]
+    
     #env_replay.data.qpos[env.model.nq:] = target_pos
     
     
     # Compute direction vector from predicted root to target
-    direction = target_pos - pred_pos
+    direction = target_pos - pred_agent_pos
     direction[2] = 0  # Ignore Z-axis for 2D orientation on the plane
     direction = direction / np.linalg.norm(direction)  # Normalize the direction vector
 
     # Calculate quaternion to face the target direction
-    angle = np.arctan2(direction[1], direction[0])  # Calculate yaw angle
+    
+    
+    # Calculate the yaw angle and add a 90-degree rotation (π/2 radians)
+    angle = np.arctan2(direction[1], direction[0]) + np.pi / 2
+
+    
+    #angle = np.arctan2(direction[1], direction[0])  # Calculate yaw angle
     target_orientation = quaternion_from_euler(0, 0, angle)  # Convert to quaternion
 
     
-     # Set the target's full pose (position + orientation)
+    # Set the target's full pose (position + orientation)
     env_replay.data.qpos[env.model.nq:env.model.nq + 3] = target_pos  # Set target position
     env_replay.data.qpos[env.model.nq + 3:env.model.nq + 7] = target_orientation  # Set target orientation
 
     # Set the target's Z-axis position to match the prediction
-    env_replay.data.qpos[env.model.nq + 2] = 0.8  # Align Z-axis with prediction
+    env_replay.data.qpos[env.model.nq + 2] = 0.9  # Align Z-axis with prediction
+    env_replay.data.qpos[env.model.nq] += 0.6  # Align x-axis with prediction
+    env_replay.data.qpos[env.model.nq] += 0.6  # Align y-axis with prediction
+    
+    
+    
+    
+    
+    #print("body names",env_replay.body_qposaddr['1_lhumerus'])
+    bodies = ["1_rhumerus","1_lhumerus","1_lfemur","1_rfemur"]
+    for body in bodies:
+        
+        if body == "1_lhumerus":
+            euler = np.array([90, -20, 0])
+        elif body == "1_rhumerus":
+             euler = np.array([-90, 20, 0])
+        if body == "1_lfemur":
+            euler = np.array([50,  0, 0])
+        if body == "1_rfemur":
+            euler = np.array([-50, 0, 0])
+         
+        
+            
+            
+            
+        start,end = env_replay.body_qposaddr[body]
+        #euler = np.zeros(3)
+        env_replay.data.qpos[start:end] = euler
+    
+    
+    
+    
     
     env_replay.forward()
         
@@ -182,6 +221,7 @@ def visualize():
     
     fr = 0  
     env_replay = HumanoidReplay(cfg.vis_model_file,15,render_mode='human')
+    #env_replay = HumanoidReplay(cfg.vis_model_file,15,render_mode='human')
     #viewer = MyViewer(env_replay.model,env_replay.data) 
     #change color of expert
     ngeom = len(env.model.geom_rgba) - 1

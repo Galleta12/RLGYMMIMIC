@@ -43,7 +43,14 @@ class HumanoidTemplate(HumanoidBase):
         #self.time_horizon = 500
         self.time_horizon = 400
         self.amp_features_size = self.get_amp_size() 
-        self.target_pos_test = np.array([5.0, 5.0, 0.0])
+        #self.target_pos_test = np.array([0.0, -0.3, 0.0])
+        
+        
+        
+        #self.target_pos_test = np.array([-6.0, 2.0, 0.0])
+        
+        self.target_pos_test = np.array([-3.0, 6.0, 0.0])
+        #self.target_pos_test = np.array([3.0, -10.0, 0.0])
         
         self.target_speed = np.random.uniform(1, 5)
         print('speed', self.target_speed)

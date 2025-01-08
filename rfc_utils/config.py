@@ -62,6 +62,8 @@ class Config:
         
         self.adv_clip = cfg.get('adv_clip', np.inf)
         self.clip_epsilon = cfg.get('clip_epsilon', 0.2)
+        
+        
         self.log_std = cfg.get('log_std', -2.3)
         self.fix_std = cfg.get('fix_std', False)
         self.num_optim_epoch = cfg.get('num_optim_epoch', 10)
@@ -103,6 +105,15 @@ class Config:
         self.root_deheading = cfg.get('root_deheading', False)
         self.action_type = cfg.get('action_type', 'position')
         self.epsilon_demo = cfg.get('epsilon_demo', 0.0)
+        
+        self.demo_increase_step = cfg.get('demo_increase_step', 0.0)
+        
+        self.demo_increase_every= cfg.get('demo_increase_every', 0.0)
+        
+        self.is_entropy = cfg.get('is_entropy ', True)
+        
+        
+        
         self.is_demo_replay = cfg.get('demo_replay', False)
         
         self.use_standard_model = cfg.get('use_standard_model', False)

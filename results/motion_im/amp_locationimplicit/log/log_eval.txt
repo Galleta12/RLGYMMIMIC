@@ -1,2 +1,8 @@
 [2024-12-06 09:37:08,474] loading model from checkpoint: results/motion_im/amp_locationimplicit/models/iter_1000.p
 [2024-12-06 10:08:38,126] loading model from checkpoint: results/motion_im/amp_locationimplicit/models/iter_1000.p
+[2024-12-10 12:05:17,814] loading model from checkpoint: results/motion_im/amp_locationimplicit/models/iter_1000.p
+[2024-12-10 12:49:19,563] loading model from checkpoint: results/motion_im/amp_locationimplicit/models/iter_1000.p
+[2024-12-12 17:59:43,736] loading model from checkpoint: results/motion_im/amp_locationimplicit/models/iter_1100.p
+[2024-12-12 17:59:53,362] loading model from checkpoint: results/motion_im/amp_locationimplicit/models/iter_1100.p
+[2024-12-12 18:01:28,240] loading model from checkpoint: results/motion_im/amp_locationimplicit/models/iter_1100.p
+[2024-12-13 09:32:03,670] loading model from checkpoint: results/motion_im/amp_locationimplicit/models/iter_1500.p

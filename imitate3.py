@@ -98,7 +98,7 @@ agent = PPO(env=env, dtype=dtype, device=device, running_state=running_state,
                  optimizer_policy=optimizer_policy, optimizer_value=optimizer_value, opt_num_epochs=cfg.num_optim_epoch,
                  gamma=cfg.gamma, gae_lambda=cfg.gae_lambda, clip_epsilon=cfg.clip_epsilon,
                  policy_grad_clip=[(policy_net.parameters(), 40)], end_reward=cfg.end_reward,
-                 use_mini_batch=cfg.mini_batch_size < cfg.min_batch_size, mini_batch_size=cfg.mini_batch_size)
+                 use_mini_batch=cfg.mini_batch_size < cfg.min_batch_size, mini_batch_size=cfg.mini_batch_size,is_entropy=cfg.is_entropy)
 
 print('opt_num_epochs', agent.opt_num_epochs)
 print('mini batch', agent.use_mini_batch)

@@ -1,0 +1,1 @@
+[2024-12-17 01:18:07,773] loading model from checkpoint: results/motion_im/back_flip2/models/iter_0500.p

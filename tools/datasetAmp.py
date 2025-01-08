@@ -49,10 +49,20 @@ class AMPDataset:
         # You can set different weights for each clip here
         self.default_weights = {
             "run_01": 1.0,
-            "walk_01": 0.8,
-            "walk_90_left": 0.5,
-            "walk_90_right": 0.5
+            "run_wide_leg": 1.0,
+            "run_left": 1.0,
+            "run_right": 1.0,
+            "run_circle": 1.0,
+            "run_ver_left": 1.0,
+            "run_ver_right": 1.0
         }
+        
+        # self.default_weights = {
+        #     "run_01": 1.0,
+        #     "walk_01": 1.0,
+        #     "walk_90_left": 1.0,
+        #     "walk_90_right": 1.0
+        # }
         
         self.load_motion_clips()
         self.height_lb = self.get_minimum_height()

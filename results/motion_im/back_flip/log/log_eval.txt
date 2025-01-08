@@ -6,3 +6,14 @@
 [2024-12-08 17:48:49,754] loading model from checkpoint: results/motion_im/back_flip/models/iter_1000.p
 [2024-12-08 17:49:04,296] loading model from checkpoint: results/motion_im/back_flip/models/iter_1000.p
 [2024-12-08 17:49:56,260] loading model from checkpoint: results/motion_im/back_flip/models/iter_1000.p
+[2024-12-10 12:08:33,717] loading model from checkpoint: results/motion_im/back_flip/models/iter_1000.p
+[2024-12-12 11:39:05,115] loading model from checkpoint: results/motion_im/back_flip/models/iter_1000.p
+[2024-12-12 11:56:26,454] loading model from checkpoint: results/motion_im/back_flip/models/iter_1000.p
+[2024-12-12 11:57:07,718] loading model from checkpoint: results/motion_im/back_flip/models/iter_1000.p
+[2024-12-15 22:48:43,810] loading model from checkpoint: results/motion_im/back_flip/models/iter_0200.p
+[2024-12-15 22:49:06,214] loading model from checkpoint: results/motion_im/back_flip/models/iter_0300.p
+[2024-12-15 22:49:22,430] loading model from checkpoint: results/motion_im/back_flip/models/iter_0400.p
+[2024-12-15 22:49:37,633] loading model from checkpoint: results/motion_im/back_flip/models/iter_0500.p
+[2024-12-16 03:21:52,314] loading model from checkpoint: results/motion_im/back_flip/models/iter_0200.p
+[2024-12-16 21:04:05,895] loading model from checkpoint: results/motion_im/back_flip/models/iter_0500.p
+[2024-12-17 01:18:43,750] loading model from checkpoint: results/motion_im/back_flip/models/iter_0500.p

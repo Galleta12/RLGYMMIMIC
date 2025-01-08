@@ -1,0 +1,2 @@
+[2025-01-06 23:06:50,475] loading model from checkpoint: results/motion_im/amp_location_fastrealimplicit/models/iter_1000.p
+[2025-01-06 23:09:11,867] loading model from checkpoint: results/motion_im/amp_location_fastrealimplicit/models/iter_1000.p

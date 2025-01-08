@@ -45,7 +45,10 @@ env_episode_len: 200
 env_term_body: 'root'
 obs_coord: 'root'
 obs_phase: true
-epsilon_demo : 0.8
+epsilon_demo : 0.6
+demo_increase_step: 0.1
+demo_increase_every: 5
+
 demo_replay : true
 # RFC parameters
 residual_force: true

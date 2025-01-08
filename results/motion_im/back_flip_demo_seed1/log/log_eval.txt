@@ -1,0 +1,2 @@
+[2024-12-17 09:44:31,561] loading model from checkpoint: results/motion_im/back_flip_demo_seed1/models/iter_0500.p
+[2024-12-17 11:49:32,123] loading model from checkpoint: results/motion_im/back_flip_demo_seed1/models/iter_0500.p

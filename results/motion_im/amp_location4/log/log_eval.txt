@@ -27,3 +27,14 @@
 [2024-12-08 20:04:41,327] loading model from checkpoint: results/motion_im/amp_location4/models/iter_1000.p
 [2024-12-08 20:12:22,842] loading model from checkpoint: results/motion_im/amp_location4/models/iter_1000.p
 [2024-12-08 20:13:30,425] loading model from checkpoint: results/motion_im/amp_location4/models/iter_1000.p
+[2024-12-10 07:32:50,053] loading model from checkpoint: results/motion_im/amp_location4/models/iter_1900.p
+[2024-12-10 07:34:19,151] loading model from checkpoint: results/motion_im/amp_location4/models/iter_1900.p
+[2024-12-10 07:50:52,810] loading model from checkpoint: results/motion_im/amp_location4/models/iter_2000.p
+[2024-12-10 12:12:30,229] loading model from checkpoint: results/motion_im/amp_location4/models/iter_2200.p
+[2024-12-10 12:12:35,596] loading model from checkpoint: results/motion_im/amp_location4/models/iter_2000.p
+[2024-12-10 12:28:12,068] loading model from checkpoint: results/motion_im/amp_location4/models/iter_2200.p
+[2024-12-10 12:28:16,528] loading model from checkpoint: results/motion_im/amp_location4/models/iter_2000.p
+[2024-12-10 12:48:31,218] loading model from checkpoint: results/motion_im/amp_location4/models/iter_2000.p
+[2024-12-12 12:38:33,233] loading model from checkpoint: results/motion_im/amp_location4/models/iter_2000.p
+[2024-12-12 18:02:15,600] loading model from checkpoint: results/motion_im/amp_location4/models/iter_2000.p
+[2024-12-12 18:17:30,148] loading model from checkpoint: results/motion_im/amp_location4/models/iter_2000.p

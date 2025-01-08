@@ -66,6 +66,9 @@ class HumanoidBase(MujocoEnv):
         self.bquat = self.get_body_quat()
         self.prev_bquat = None
         self.expert = None
+        
+        self.demo_counter = 0
+        
         self.load_expert()
         self.set_spaces()
     
@@ -125,6 +128,41 @@ class HumanoidBase(MujocoEnv):
             obs.append(np.array([phase]))
         obs = np.concatenate(obs)
         return obs
+    
+    
+    def get_full_obs_demo_replay(self):
+        
+        
+        t = self.cur_t
+        ind = self.get_expert_index(t)
+        
+        qpos = self.get_expert_attr('qpos',ind).copy()
+        qvel = self.get_expert_attr('qvel',ind).copy()
+        
+        # transform velocity needs to be realitve to the specified coordinate frame
+        if self.cfg.obs_coord == 'root':
+            qvel[:3] = transform_vec(qvel[:3], qpos[3:7]).ravel()
+        elif self.cfg.obs_coord =='heading':
+            #print('obs coord', self.cfg.obs_coord)
+            hq = get_heading_q(qpos[3:7])
+            qvel[:3] = transform_vec(qvel[:3], hq).ravel()
+            
+        obs = []
+        #just use the z coordinate
+        obs.append(qpos[2:])
+            
+        obs.append(qvel)
+        # phase
+        if self.cfg.obs_phase:
+            
+            phase = self.get_phase()
+            obs.append(np.array([phase]))
+        
+        obs = np.concatenate(obs)
+        return obs
+    
+    
+    
     
     def get_ee_pos(self, transform):
         data = self.data
@@ -276,7 +314,7 @@ class HumanoidBase(MujocoEnv):
         
         
         # Compute the L2 norm of the differences
-        error = np.linalg.norm(e_relative - s_relative, axis=1).mean()
+        error = np.linalg.norm(s_relative - e_relative, axis=1).mean()
 
         return error
     
@@ -285,8 +323,11 @@ class HumanoidBase(MujocoEnv):
         t = self.cur_t
         ind = self.get_expert_index(t)
         
-        pose_error = self.pose_error()  
+        pose_error = self.pose_error()
+        
+        print("epsilon demo", self.cfg.epsilon_demo)  
         if pose_error > self.cfg.epsilon_demo:
+            
             
             print('replace')
             demo_state = self.get_expert_attr('qpos',ind)
@@ -294,7 +335,48 @@ class HumanoidBase(MujocoEnv):
             self.set_state(demo_state, demo_vel)
             
             print("new pose_error",self.pose_error())
+            self.set_epsilon_demo()
+            
         self.bquat = self.get_body_quat()
         self.update_expert()
-                
+
+    
+    
+    
+    def set_epsilon_demo(self):
+        #every step change it
+        self.demo_counter += 1
+        print('demo counter',self.demo_counter)
+        if self.demo_counter % self.cfg.demo_increase_every == 0:
+            self.cfg.epsilon_demo += self.cfg.demo_increase_step
+            print(f"Updated epsilon_demo: {self.cfg.epsilon_demo}")
+            
+        
+    
+    
+    # def demo_replay(self,state):
+    #     t = self.cur_t
+    #     ind = self.get_expert_index(t)
+        
+        
+    #     expert_obs = self.get_full_obs_demo_replay()
+        
+        
+    #     state_error = np.linalg.norm(state - expert_obs)
+        
+    #     #print("state",state)
+    #     #print("state_error",expert_obs)
+        
+        
+    #     print('state_error', state_error)
+    #     if state_error > self.cfg.epsilon_demo:
+            
+    #         print('demo replay')
+    #         demo_pos = self.get_expert_attr('qpos',ind)
+    #         demo_vel = self.get_expert_attr('qvel',ind)
+    #         self.set_state(demo_pos, demo_vel)
+            
+            
+    #     self.bquat = self.get_body_quat()
+    #     self.update_expert()
                 

@@ -5,3 +5,5 @@
 [2024-12-08 17:32:31,049] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_1000.p
 [2024-12-08 17:33:01,213] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_1000.p
 [2024-12-08 17:38:19,705] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_1000.p
+[2024-12-17 11:52:18,487] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_0500.p
+[2024-12-17 11:52:33,750] loading model from checkpoint: results/motion_im/back_flip_demo/models/iter_0500.p

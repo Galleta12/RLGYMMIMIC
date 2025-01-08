@@ -71,6 +71,7 @@ class HumanoidBase(MujocoEnv,EzPickle):
         self.body_qposaddr = get_body_qposaddr(self.model)
         self.bquat = self.get_body_quat()
         self.prev_bquat = None
+        self.demo_counter = 0
         self.expert = None
         if self.isExpert:
             self.load_expert()
@@ -150,6 +151,43 @@ class HumanoidBase(MujocoEnv,EzPickle):
         
         obs = np.concatenate(obs)
         return obs
+    
+    def get_full_obs_demo_replay(self):
+        
+        
+        t = self.cur_t
+        ind = self.get_expert_index(t)
+        
+        qpos = self.get_expert_attr('qpos',ind).copy()
+        qvel = self.get_expert_attr('qvel',ind).copy()
+        
+        # transform velocity needs to be realitve to the specified coordinate frame
+        if self.cfg.obs_coord == 'root':
+            qvel[:3] = transform_vec(qvel[:3], qpos[3:7]).ravel()
+        elif self.cfg.obs_coord =='heading':
+            #print('obs coord', self.cfg.obs_coord)
+            hq = get_heading_q(qpos[3:7])
+            qvel[:3] = transform_vec(qvel[:3], hq).ravel()
+            
+        obs = []
+        #just use the z coordinate
+        obs.append(qpos[2:])
+            
+        obs.append(qvel)
+        # phase
+        if self.cfg.obs_phase:
+            
+            phase = self.get_phase()
+            obs.append(np.array([phase]))
+        
+        obs = np.concatenate(obs)
+        return obs
+    
+    
+    
+    
+    
+    
     
     def get_ee_pos(self, transform):
         data = self.data
@@ -311,14 +349,24 @@ class HumanoidBase(MujocoEnv,EzPickle):
         t = self.cur_t
         ind = self.get_expert_index(t)
         
-        pose_error = self.pose_error()  
+        pose_error = self.pose_error()
+        
         if pose_error > self.cfg.epsilon_demo:
+            
+            
             demo_state = self.get_expert_attr('qpos',ind)
             demo_vel = self.get_expert_attr('qvel',ind)
             self.set_state(demo_state, demo_vel)
             
+            self.set_epsilon_demo()
             
         self.bquat = self.get_body_quat()
         self.update_expert()
-                
-                
+
+    def set_epsilon_demo(self):
+        #every step change it
+        self.demo_counter += 1
+        if self.demo_counter % self.cfg.demo_increase_every == 0:
+            self.cfg.epsilon_demo += self.cfg.demo_increase_step
+            
+        

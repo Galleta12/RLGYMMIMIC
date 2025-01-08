@@ -33,6 +33,7 @@ class HumanoidReplay(MujocoEnv):
             "rgb_array",
             "depth_array",
         ],
+        #"render_fps": 30,
         "render_fps": 30,
     }
 
@@ -49,7 +50,7 @@ class HumanoidReplay(MujocoEnv):
             default_camera_config=DEFAULT_CAMERA_CONFIG, observation_space=None,**kwargs
         )
         self.metadata['render_fps'] = int(np.round(self.metadata['render_fps'] / frame_skip))
-    
+        self.body_qposaddr = get_body_qposaddr(self.model)
         #self.metadata['render_fps'] = int(np.round(1.0 / self.dt))
  
     def forward(self):
