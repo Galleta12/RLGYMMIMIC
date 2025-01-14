@@ -44,47 +44,62 @@ def main():
         "AMP Residual": [
             "results/motion_im/amp_location_fastrealimplicit/tb",
         ]
-        
     }
 
-    tags = {"reward_3":"Task Reward","reward_4": "Style Reward", "total_reward": "Total Reward", "episode_len": "Episode Length"}
+    tags = {
+        "reward_3": "Task Reward",
+        "reward_4": "Style Reward",
+        "total_reward": "Total Reward",
+        "episode_len": "Episode Length"
+    }
 
     colors = {
         "Standard AMP": "blue",
         "AMP Residual": "red",
     }
 
-    # Plot each group individually for each tag
-    for tag, tag_label in tags.items():
-        for group_name, files in file_groups.items():
-           
-            steps, values = aggregate_data(files, tag)
-            plt.figure()
-            for v in values:
-                plot_without_error_bands(steps, v, label=f"{group_name}", color=colors[group_name])
-            plt.title(f"{tag_label} - {group_name}")
-            plt.xlabel("Steps")
-            plt.ylabel(tag_label)
-            plt.legend()
-            plt.grid()
-            plt.savefig(f"amp_{tag}_{group_name.replace(' ', '_')}.png")
-            plt.close()
+    y_limits = {}
 
-    # Combined plot for each tag
+    # Step 1: Generate combined plots to determine y-axis limits
     for tag, tag_label in tags.items():
         plt.figure()
+        y_min, y_max = float('inf'), float('-inf')
+
         for group_name, files in file_groups.items():
-           
             steps, values = aggregate_data(files, tag)
             for v in values:
                 plot_without_error_bands(steps, v, label=f"{group_name}", color=colors[group_name])
+                y_min = min(y_min, np.min(v))
+                y_max = max(y_max, np.max(v))
+
+        # Save the y-axis limits for this tag
+        y_limits[tag] = (y_min, y_max)
+
         plt.title(f"{tag_label} - Combined")
-        plt.xlabel("Steps")
+        plt.xlabel("Steps Epoch")
         plt.ylabel(tag_label)
         plt.legend(title="Legend", loc="upper right", fontsize="small")
         plt.grid()
         plt.savefig(f"amp_{tag}_all.png")
         plt.close()
+
+    # Step 2: Generate individual plots using the captured y-axis limits
+    for tag, tag_label in tags.items():
+        y_min, y_max = y_limits[tag]
+
+        for group_name, files in file_groups.items():
+            steps, values = aggregate_data(files, tag)
+            plt.figure()
+            for v in values:
+                plot_without_error_bands(steps, v, label=f"{group_name}", color=colors[group_name])
+            plt.ylim(y_min, y_max)  # Apply the same y-axis limits
+            plt.title(f"{tag_label} - {group_name}")
+            plt.xlabel("Steps Epoch")
+            plt.ylabel(tag_label)
+            plt.legend()
+            plt.grid()
+            plt.savefig(f"amp_{tag}_{group_name.replace(' ', '_')}.png")
+            plt.close()
 
 if __name__ == "__main__":
     main()

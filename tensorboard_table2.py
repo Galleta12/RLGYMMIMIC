@@ -37,10 +37,10 @@ def main():
         "Residual and Entropy and Demo": [
             "results/motion_im/chicken_01_realreal2/tb",
         ],
-        "Residual and No Residual and Root": [
+        "Entropy and No Residual and Root": [
             "results/motion_im/chicken_01_realreal3/tb",
         ],
-        "Residual No Entropy and No Demo": [
+        "No Entropy and No Residual and No Demo": [
             "results/motion_im/chicken_01_realreal4/tb",
         ]
     }
@@ -51,8 +51,8 @@ def main():
 
     for tag in tags:
         for group_name, files in file_groups.items():
-            # Special condition for "Residual and No Residual and Root"
-            current_tag = "reward_4" if group_name == "Residual and No Residual and Root" and tag == "reward_6" else tag
+            # Special condition for "Entropy and No Residual and Root"
+            current_tag = "reward_4" if group_name == "Entropy and No Residual and Root" and tag == "reward_6" else tag
 
             max_value, min_value = calculate_max_min(files, current_tag)
             if tag not in results:
@@ -80,6 +80,8 @@ def main():
         table.auto_set_font_size(False)
         table.set_fontsize(10)
         table.auto_set_column_width([0, 1, 2])
+
+        # Set the title for each table
         ax.set_title("Pose Error" if tag in ["reward_6", "reward_4"] else tag.replace('_', ' ').title())
 
     # Adjust layout to ensure clarity

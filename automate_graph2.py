@@ -20,9 +20,15 @@ def aggregate_data(file_paths, tag):
     all_values = []
 
     for file_path in file_paths:
-        steps, values = extract_data_from_tensorboard(file_path, tag)
-        all_steps.append(steps)
-        all_values.append(values)
+        try:
+            steps, values = extract_data_from_tensorboard(file_path, tag)
+            all_steps.append(steps)
+            all_values.append(values)
+        except ValueError as e:
+            print(e)
+
+    if not all_steps:
+        raise ValueError(f"No valid data found for tag {tag} across the provided files.")
 
     # Align data by the minimum length
     min_steps = min([len(steps) for steps in all_steps])
@@ -61,43 +67,56 @@ def main():
         "No Entropy and No Residual and No Demo": "lightgreen",
     }
 
-    # Plot each group individually for each tag
-    for tag, tag_label in tags.items():
-        for group_name, files in file_groups.items():
-            # Special condition for "Entropy and No Residual and Root"
-            if group_name == "Entropy and No Residual and Root" and tag == "reward_6":
-                tag = "reward_4"
+    y_limits = {}
 
-            steps, values = aggregate_data(files, tag)
-            plt.figure()
-            for v in values:
-                plot_without_error_bands(steps, v, label=f"{group_name}", color=colors[group_name])
-            plt.title(f"{tag_label} - {group_name}")
-            plt.xlabel("Steps")
-            plt.ylabel(tag_label)
-            plt.legend()
-            plt.grid()
-            plt.savefig(f"residual_{tag}_{group_name.replace(' ', '_')}.png")
-            plt.close()
-
-    # Combined plot for each tag
+    # Step 1: Generate combined plots and capture y-axis limits
     for tag, tag_label in tags.items():
         plt.figure()
-        for group_name, files in file_groups.items():
-            # Special condition for "Entropy and No Residual and Root"
-            if group_name == "Entropy and No Residual and Root" and tag == "reward_6":
-                tag = "reward_4"
+        y_min, y_max = float('inf'), float('-inf')
 
-            steps, values = aggregate_data(files, tag)
+        for group_name, files in file_groups.items():
+            effective_tag = tag
+            if group_name == "Entropy and No Residual and Root" and tag == "reward_6":
+                effective_tag = "reward_4"
+
+            steps, values = aggregate_data(files, effective_tag)
             for v in values:
                 plot_without_error_bands(steps, v, label=f"{group_name}", color=colors[group_name])
+                y_min = min(y_min, np.min(v))
+                y_max = max(y_max, np.max(v))
+
+        # Save the y-axis limits for the original tag (e.g., reward_6)
+        y_limits[tag] = (y_min, y_max)
+
         plt.title(f"{tag_label} - Combined")
-        plt.xlabel("Steps")
+        plt.xlabel("Steps Epoch")
         plt.ylabel(tag_label)
         plt.legend(title="Legend", loc="upper right", fontsize="small")
         plt.grid()
         plt.savefig(f"residual_{tag}_all.png")
         plt.close()
+
+    # Step 2: Generate individual plots using the captured y-axis limits
+    for tag, tag_label in tags.items():
+        y_min, y_max = y_limits[tag]
+
+        for group_name, files in file_groups.items():
+            effective_tag = tag
+            if group_name == "Entropy and No Residual and Root" and tag == "reward_6":
+                effective_tag = "reward_4"
+
+            steps, values = aggregate_data(files, effective_tag)
+            plt.figure()
+            for v in values:
+                plot_without_error_bands(steps, v, label=f"{group_name}", color=colors[group_name])
+            plt.ylim(y_min, y_max)  # Apply the same y-axis limits from the combined plot
+            plt.title(f"{tag_label} - {group_name}")
+            plt.xlabel("Steps Epoch")
+            plt.ylabel(tag_label)
+            plt.legend()
+            plt.grid()
+            plt.savefig(f"residual_{tag}_{group_name.replace(' ', '_')}.png")
+            plt.close()
 
 if __name__ == "__main__":
     main()
