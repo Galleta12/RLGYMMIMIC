@@ -60,35 +60,47 @@ def main():
     }
 
     tags = {"reward_5": "Pose Error", "total_reward": "Total Reward", "episode_len": "Episode Length"}
-
     colors = {"Standard": "blue", "Demo Replay": "red", "No Entropy": "lightgreen"}
 
-    for tag, tag_label in tags.items():
-        for group_name, files in file_groups.items():
-            steps, mean_values, std_values = aggregate_data(files, tag)
-            plt.figure()
-            plot_with_error_bands(steps, mean_values, std_values, label=f"{group_name} (std dev)", color=colors[group_name])
-            plt.title(f"{tag_label} - {group_name}")
-            plt.xlabel("Steps")
-            plt.ylabel(tag_label)
-            plt.legend()
-            plt.grid()
-            plt.savefig(f"{tag}_{group_name}.png")
-            plt.close()
+    y_limits = {}
 
-    # Combined plots with error bands
+    # First, create combined plots to determine y-axis limits
     for tag, tag_label in tags.items():
         plt.figure()
+        y_min, y_max = float('inf'), float('-inf')
+        
         for group_name, files in file_groups.items():
             steps, mean_values, std_values = aggregate_data(files, tag)
             plot_with_error_bands(steps, mean_values, std_values, label=f"{group_name} (std dev)", color=colors[group_name])
+            y_min = min(y_min, np.min(mean_values - std_values))
+            y_max = max(y_max, np.max(mean_values + std_values))
+        
         plt.title(f"{tag_label} - Combined with Error Bands")
-        plt.xlabel("Steps")
+        plt.xlabel("Steps Epoch")
         plt.ylabel(tag_label)
         plt.legend(title="Legend (std dev: shaded area)")
         plt.grid()
         plt.savefig(f"{tag}_all_with_error_bands.png")
         plt.close()
+
+        y_limits[tag] = (y_min, y_max)
+
+    # Now, create individual plots with consistent y-axis limits
+    for tag, tag_label in tags.items():
+        y_min, y_max = y_limits[tag]
+
+        for group_name, files in file_groups.items():
+            steps, mean_values, std_values = aggregate_data(files, tag)
+            plt.figure()
+            plot_with_error_bands(steps, mean_values, std_values, label=f"{group_name} (std dev)", color=colors[group_name])
+            plt.ylim(y_min, y_max)  # Apply the same y-axis limits
+            plt.title(f"{tag_label} - {group_name}")
+            plt.xlabel("Steps Epoch")  # Updated x-axis label
+            plt.ylabel(tag_label)
+            plt.legend()
+            plt.grid()
+            plt.savefig(f"{tag}_{group_name}.png")
+            plt.close()
 
 if __name__ == "__main__":
     main()
